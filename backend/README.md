@@ -96,3 +96,350 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+
+# 🏠 Roommate Compatibility System (Schools & Hostels)
+
+## 📌 Project Overview
+
+A **multi-organization backend system** that enables:
+
+* 🏫 Schools (strict invite-only access)
+* 🏨 Hostels (semi-controlled access)
+
+to manage users and assign compatible roommates.
+
+---
+
+# 🧠 Core Principle
+
+> **No user can access an organization without a valid invite**
+
+This system enforces:
+
+* Controlled onboarding
+* Secure authentication
+* Organization isolation
+
+---
+
+# 🏢 Organization Types
+
+## 🏫 Schools (STRICT)
+
+* Invite-only access
+* Admin must send invite via email
+* User cannot self-register without invite
+
+---
+
+## 🏨 Hostels (CONTROLLED FLEXIBILITY)
+
+* Still invite-based (for now)
+* Can later support request/booking flow
+
+---
+
+# 👥 Roles
+
+## 🔴 SUPER_ADMIN
+
+* Creates organizations
+* Full system access
+* Created manually in database
+
+## 🟠 ORG_ADMIN
+
+* Manages one organization
+* Sends invites
+* Manages users
+
+## 🔵 USER
+
+* Registers via invite
+* Logs in normally after setup
+
+---
+
+# 🔐 AUTHENTICATION SYSTEM (UPDATED)
+
+---
+
+# ✉️ INVITE-BASED REGISTRATION (CORE FLOW)
+
+## Step 1 — Admin Creates Invite
+
+System generates:
+
+* email
+* organizationId
+* **unique token**
+* expiry time
+
+---
+
+## 🔑 Token Requirements
+
+Every invite token must be:
+
+* ✅ **Unique**
+* ✅ **Random (unguessable)**
+* ✅ **Single-use**
+* ✅ **Time-limited**
+
+---
+
+## Step 2 — Email is Sent
+
+User receives email like:
+
+```
+Hello,
+
+You have been invited to join [Organization Name].
+
+Click the link below to register:
+http://yourapp.com/register?token=abc123XYZ
+
+This link will expire in 24 hours.
+```
+
+---
+
+## 🧠 IMPORTANT: Token Behavior
+
+### If user:
+
+* Doesn’t open email → token expires
+* Requests resend → **new token is generated**
+* Old token → becomes invalid
+
+👉 **No two invites should ever share the same token**
+
+---
+
+## Step 3 — User Clicks Link
+
+Frontend extracts token:
+
+```js
+const token = new URLSearchParams(window.location.search).get("token");
+```
+
+---
+
+## Step 4 — Backend Validates Token
+
+Checks:
+
+* Token exists
+* Status = `PENDING`
+* Not expired
+
+---
+
+## ❌ If Invalid
+
+Return:
+
+```json
+{
+  "message": "Invalid or expired invite"
+}
+```
+
+---
+
+## ✅ If Valid
+
+Allow user to:
+
+* Enter name
+* Set password
+* Select gender
+
+---
+
+## Step 5 — Account Creation
+
+System:
+
+* Hashes password
+* Creates user
+* Links to organization
+* Marks invite as `ACCEPTED`
+
+---
+
+## Step 6 — Login
+
+User logs in using:
+
+* email
+* password
+
+---
+
+# 🔁 RESENDING INVITES (VERY IMPORTANT)
+
+When admin resends an invite:
+
+* ❌ DO NOT reuse old token
+* ✅ Generate NEW token
+* ❌ Old token becomes invalid or expired
+
+---
+
+## Recommended Approach
+
+* Option 1:
+
+  * Update existing invite with new token
+
+* Option 2 (Better):
+
+  * Mark old invite as `EXPIRED`
+  * Create a new invite record
+
+---
+
+# 🔐 SECURITY RULES
+
+* ❌ No token → No registration
+* ❌ Used token → Denied
+* ❌ Expired token → Denied
+* ❌ Wrong email → Denied
+* ✅ Only valid token → Access
+
+---
+
+# 🧬 DATABASE STRUCTURE (UPDATED)
+
+## Invite Model
+
+* id
+* email
+* token (unique)
+* status:
+
+  * PENDING
+  * ACCEPTED
+  * EXPIRED
+* organizationId
+* expiresAt
+* createdAt
+
+---
+
+# 🧠 TOKEN GENERATION STRATEGY
+
+Use something like:
+
+```ts
+import { randomBytes } from 'crypto';
+
+const token = randomBytes(32).toString('hex');
+```
+
+This ensures:
+
+* High randomness
+* Impossible to guess
+
+---
+
+# 🏗 PROJECT STRUCTURE
+
+```id="folderstructure"
+src/
+│
+├── modules/
+│   ├── auth/
+│   ├── invite/
+│   ├── organization/
+│   ├── user/
+│
+├── prisma/
+│   ├── prisma.service.ts
+│   ├── prisma.module.ts
+│
+├── common/
+│   ├── guards/
+│   ├── decorators/
+│   ├── utils/
+│
+├── app.module.ts
+```
+
+---
+
+# 📧 EMAIL SYSTEM (NEW)
+
+## Responsibilities
+
+* Send invite emails
+* Include token in URL
+* Handle resend logic
+
+---
+
+## Example Invite Link
+
+```
+http://localhost:3000/register?token=abc123XYZ
+```
+
+---
+
+# ⚠️ COMMON MISTAKES
+
+* ❌ Reusing tokens
+* ❌ Allowing registration without token
+* ❌ Not expiring tokens
+* ❌ Not validating invite status
+* ❌ Letting users choose organization manually
+
+---
+
+# 🧭 DEVELOPMENT FLOW (UPDATED)
+
+1. ✅ Database + Prisma
+2. ✅ Auth module setup
+3. 🔄 Invite system (current focus)
+4. ⏭ Email sending
+5. ⏭ Registration with token
+6. ⏭ Login
+7. ⏭ Role guards
+
+---
+
+# 🧩 FINAL MENTAL MODEL
+
+* Invite = **secure entry pass**
+* Token = **one-time key**
+* Registration = **account creation**
+* Login = **return access**
+
+---
+
+# 📍 CURRENT STATE
+
+You now have:
+
+✅ Database ready
+✅ Email system ready
+🔄 Building invite + auth integration
+
+---
+
+# 🚀 NEXT STEP
+
+Implement:
+
+* Invite creation service
+* Email sending with token
+* Register endpoint with token validation
+
+---
+
+**This README is your blueprint. Follow it step by step.**

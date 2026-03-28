@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
@@ -14,13 +16,25 @@ export class OrgAdminService {
     private mailService: MailService,
   ) {}
 
+  // Helper to ensure user is ORG_ADMIN
+  private assertAdmin(user: any) {
+    if (!user || user.role !== 'ORG_ADMIN') {
+      throw new UnauthorizedException(
+        'Only organization admins can perform this action',
+      );
+    }
+  }
+
   // Add a single student
   async addStudent(
+    user: any,
     organizationId: string,
     name: string,
     email: string,
     gender: string,
   ) {
+    this.assertAdmin(user);
+
     const org = await this.prisma.organization.findUnique({
       where: { id: organizationId },
     });
@@ -61,7 +75,9 @@ export class OrgAdminService {
   }
 
   // Get all students
-  async getStudents(organizationId: string) {
+  async getStudents(user: any, organizationId: string) {
+    this.assertAdmin(user);
+
     const invites = await this.prisma.invite.findMany({
       where: { organizationId },
       orderBy: { createdAt: 'desc' },
@@ -78,7 +94,9 @@ export class OrgAdminService {
   }
 
   // Send invites to all pending students
-  async sendInvites(organizationId: string) {
+  async sendInvites(user: any, organizationId: string) {
+    this.assertAdmin(user);
+
     const org = await this.prisma.organization.findUnique({
       where: { id: organizationId },
     });
@@ -88,10 +106,7 @@ export class OrgAdminService {
     }
 
     const pendingStudents = await this.prisma.invite.findMany({
-      where: {
-        organizationId,
-        status: 'PENDING',
-      },
+      where: { organizationId, status: 'PENDING' },
     });
 
     if (pendingStudents.length === 0) {
@@ -138,7 +153,9 @@ export class OrgAdminService {
   }
 
   // Send invite to one student
-  async sendInviteToOne(inviteId: string) {
+  async sendInviteToOne(user: any, inviteId: string) {
+    this.assertAdmin(user);
+
     const student = await this.prisma.invite.findUnique({
       where: { id: inviteId },
       include: { organization: true },
@@ -178,7 +195,10 @@ export class OrgAdminService {
     };
   }
 
-  async deleteStudent(inviteId: string) {
+  // Delete a student
+  async deleteStudent(user: any, inviteId: string) {
+    this.assertAdmin(user);
+
     const student = await this.prisma.invite.findUnique({
       where: { id: inviteId },
     });

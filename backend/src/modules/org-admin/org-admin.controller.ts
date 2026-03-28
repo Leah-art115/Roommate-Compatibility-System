@@ -8,13 +8,13 @@ import {
   Body,
   Param,
   UseGuards,
-  Request,
   Delete,
 } from '@nestjs/common';
 import { OrgAdminService } from './org-admin.service';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '../auth/jwt.guard';
+import { CurrentUser } from '../auth/current-user.decorator';
 
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtAuthGuard)
 @Controller('org-admin')
 export class OrgAdminController {
   constructor(private orgAdminService: OrgAdminService) {}
@@ -22,11 +22,12 @@ export class OrgAdminController {
   // Add a student
   @Post('students')
   addStudent(
-    @Request() req,
+    @CurrentUser() user: any,
     @Body() body: { name: string; email: string; gender: string },
   ) {
-    const organizationId = req.user.organizationId; // pulled from JWT
+    const organizationId = user.organizationId;
     return this.orgAdminService.addStudent(
+      user,
       organizationId,
       body.name,
       body.email,
@@ -36,26 +37,27 @@ export class OrgAdminController {
 
   // Get all students
   @Get('students')
-  getStudents(@Request() req) {
-    const organizationId = req.user.organizationId;
-    return this.orgAdminService.getStudents(organizationId);
+  getStudents(@CurrentUser() user: any) {
+    const organizationId = user.organizationId;
+    return this.orgAdminService.getStudents(user, organizationId);
   }
 
   // Send invites to all pending students
   @Post('invites/send-all')
-  sendInvites(@Request() req) {
-    const organizationId = req.user.organizationId;
-    return this.orgAdminService.sendInvites(organizationId);
+  sendInvites(@CurrentUser() user: any) {
+    const organizationId = user.organizationId;
+    return this.orgAdminService.sendInvites(user, organizationId);
   }
 
   // Send invite to one student
   @Post('invites/send/:id')
-  sendInviteToOne(@Param('id') id: string) {
-    return this.orgAdminService.sendInviteToOne(id);
+  sendInviteToOne(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.orgAdminService.sendInviteToOne(user, id);
   }
 
+  // Delete a student
   @Delete('students/:id')
-  deleteStudent(@Param('id') id: string) {
-    return this.orgAdminService.deleteStudent(id);
+  deleteStudent(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.orgAdminService.deleteStudent(user, id);
   }
 }
