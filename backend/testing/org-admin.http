@@ -1,0 +1,52 @@
+### 1. Login as Org Admin
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@nairobi.ac.ke",
+  "password": "Admin1234!"
+}
+
+###
+
+### 2. Add a student
+POST http://localhost:3000/org-admin/students
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzQ1MjY3NzMsImV4cCI6MTc3NDYxMzE3M30.VCjyRTfho5kOo_Tv5tR7hGB_DwUeKEqN1ottJon4pBY
+
+{
+  "name": "Jane Doe",
+  "email": "jane@gmail.com",
+  "gender": "female"
+}
+
+###
+
+POST http://localhost:3000/org-admin/students
+Content-Type: application/json
+Authorization: Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzQ1MjY3NzMsImV4cCI6MTc3NDYxMzE3M30.VCjyRTfho5kOo_Tv5tR7hGB_DwUeKEqN1ottJon4pBY
+
+{
+  "name": "Phil Otieno",
+  "email": "olaachieng123@gmail.com",
+  "gender": "male"
+}
+
+### 3. Get all students
+GET http://localhost:3000/org-admin/students
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzQ1MjY3NzMsImV4cCI6MTc3NDYxMzE3M30.VCjyRTfho5kOo_Tv5tR7hGB_DwUeKEqN1ottJon4pBY
+
+###
+
+### 4. Send invites to all pending students
+POST http://localhost:3000/org-admin/invites/send-all
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzQ1MjY3NzMsImV4cCI6MTc3NDYxMzE3M30.VCjyRTfho5kOo_Tv5tR7hGB_DwUeKEqN1ottJon4pBY
+###
+
+### 5. Send invite to one student (paste student invite id)
+POST http://localhost:3000/org-admin/invites/send/4c492d41-3141-42e7-8e04-91fd1f1c39d4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzQ1MjY3NzMsImV4cCI6MTc3NDYxMzE3M30.VCjyRTfho5kOo_Tv5tR7hGB_DwUeKEqN1ottJon4pBY
+
+### Delete a student
+DELETE http://localhost:3000/org-admin/students/8bd4a638-916e-4392-8638-00b75e7e061c
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzQ1MjY3NzMsImV4cCI6MTc3NDYxMzE3M30.VCjyRTfho5kOo_Tv5tR7hGB_DwUeKEqN1ottJon4pBY

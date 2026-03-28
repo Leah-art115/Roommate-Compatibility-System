@@ -1,0 +1,41 @@
+### 1. Login as Super Admin
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "superadmin@roommate.com",
+  "password": "SuperAdmin123!"
+}
+
+###
+
+### 2. Create an organization (paste token from step 1)
+POST http://localhost:3000/super-admin/organizations
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDE5MmRiMC1kYWM2LTQ1MzEtYmY3NC05YjE4ZTg1ZDAzYWYiLCJlbWFpbCI6InN1cGVyYWRtaW5Acm9vbW1hdGUuY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOm51bGwsImlhdCI6MTc3MzQ5MTQwNiwiZXhwIjoxNzczNTc3ODA2fQ.CcsEWe_bAnTME3z-omUw6sMFcmZHUEjgTu2UDR-N87A
+
+{
+  "name": "Nairobi University",
+  "type": "SCHOOL"
+}
+
+###
+
+
+### 3. Get all organizations
+GET http://localhost:3000/super-admin/organizations
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDE5MmRiMC1kYWM2LTQ1MzEtYmY3NC05YjE4ZTg1ZDAzYWYiLCJlbWFpbCI6InN1cGVyYWRtaW5Acm9vbW1hdGUuY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOm51bGwsImlhdCI6MTc3MzQ5MTQwNiwiZXhwIjoxNzczNTc3ODA2fQ.CcsEWe_bAnTME3z-omUw6sMFcmZHUEjgTu2UDR-N87A
+
+### 4. Create an org admin (paste organizationId from step 2)
+POST http://localhost:3000/super-admin/org-admins
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDE5MmRiMC1kYWM2LTQ1MzEtYmY3NC05YjE4ZTg1ZDAzYWYiLCJlbWFpbCI6InN1cGVyYWRtaW5Acm9vbW1hdGUuY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOm51bGwsImlhdCI6MTc3MzQ5MTQwNiwiZXhwIjoxNzczNTc3ODA2fQ.CcsEWe_bAnTME3z-omUw6sMFcmZHUEjgTu2UDR-N87A
+
+{
+  "name": "Jane Admin",
+  "email": "admin@nairobi.ac.ke",
+  "organizationId": "00e1e2da-4c72-401e-907a-656aa30c7b24",
+  "temporaryPassword": "Admin1234!"
+}
+
+###
