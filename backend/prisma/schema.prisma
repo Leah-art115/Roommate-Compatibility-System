@@ -25,6 +25,19 @@ enum InviteStatus {
   EXPIRED
 }
 
+enum BookingStatus {
+  NOT_STARTED
+  QUIZ_DONE
+  MATCHED
+  ALLOCATED
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  SCALE
+}
+
 model Organization {
   id        String           @id @default(uuid())
   name      String
@@ -33,6 +46,8 @@ model Organization {
 
   users     User[]
   invites   Invite[]
+  questions Question[]
+  rooms     Room[]
 }
 
 model User {
@@ -42,20 +57,82 @@ model User {
   password       String
   gender         String?
   role           Role          @default(USER)
+  bookingStatus  BookingStatus @default(NOT_STARTED)
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id])
   createdAt      DateTime      @default(now())
+
+  answers        Answer[]
+  matchAsUser1   RoommateMatch[] @relation("MatchUser1")
+  matchAsUser2   RoommateMatch[] @relation("MatchUser2")
+  roomAllocation RoomAllocation?
 }
 
 model Invite {
   id             String       @id @default(uuid())
-  name           String                // ← added
+  name           String
   email          String
-  gender         String?               // ← added
+  gender         String?
   token          String       @unique
   status         InviteStatus @default(PENDING)
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
   expiresAt      DateTime?
   createdAt      DateTime     @default(now())
+}
+
+model Question {
+  id             String       @id @default(uuid())
+  text           String
+  type           QuestionType
+  options        String[]
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  order          Int          @default(0)
+  createdAt      DateTime     @default(now())
+
+  answers        Answer[]
+}
+
+model Answer {
+  id         String   @id @default(uuid())
+  userId     String
+  questionId String
+  answer     String
+  user       User     @relation(fields: [userId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, questionId])
+}
+
+model Room {
+  id             String   @id @default(uuid())
+  roomNumber     String
+  block          String?
+  capacity       Int      @default(2)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime @default(now())
+
+  allocations    RoomAllocation[]
+}
+
+model RoommateMatch {
+  id        String   @id @default(uuid())
+  user1Id   String
+  user2Id   String
+  score     Float
+  user1     User     @relation("MatchUser1", fields: [user1Id], references: [id])
+  user2     User     @relation("MatchUser2", fields: [user2Id], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model RoomAllocation {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  roomId    String
+  user      User     @relation(fields: [userId], references: [id])
+  room      Room     @relation(fields: [roomId], references: [id])
+  createdAt DateTime @default(now())
 }

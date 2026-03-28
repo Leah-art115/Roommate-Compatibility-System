@@ -26,7 +26,7 @@ export class MailService {
     token: string,
     gender?: string,
   ) {
-    const inviteLink = `http://localhost:3001/register?token=${token}`;
+    const inviteLink = `http://localhost:4200/register?token=${token}`;
 
     const isFemale = gender?.toLowerCase() === 'female';
 
@@ -36,14 +36,12 @@ export class MailService {
           secondary: '#d7bde2',
           accent: '#f9ebff',
           button: '#8e44ad',
-          emoji: '🌸',
         }
       : {
           primary: '#2980b9',
           secondary: '#aed6f1',
           accent: '#ebf5fb',
           button: '#1a6fa0',
-          emoji: '🌊',
         };
 
     const html = `
@@ -75,11 +73,6 @@ export class MailService {
               background: linear-gradient(135deg, ${colors.primary}, ${colors.button});
               padding: 40px 30px;
               text-align: center;
-            }
-            .header .emoji {
-              font-size: 48px;
-              display: block;
-              margin-bottom: 12px;
             }
             .header h1 {
               color: #ffffff;
@@ -120,6 +113,12 @@ export class MailService {
             }
             .card strong {
               color: ${colors.primary};
+            }
+            .icon {
+              width: 20px;
+              height: 20px;
+              vertical-align: middle;
+              margin-right: 10px;
             }
             .button-container {
               text-align: center;
@@ -172,12 +171,18 @@ export class MailService {
           <div class="wrapper">
             <div class="container">
               <div class="header">
-                <span class="emoji">${colors.emoji}</span>
                 <h1>${organizationName}</h1>
                 <p>Hostel Booking Portal</p>
               </div>
               <div class="body">
-                <div class="greeting">Hey ${studentName}! 👋</div>
+                <div class="greeting">Hey ${studentName}! 
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-left: 4px;">
+                    <path d="M15 19C15 19 16.5 19 18 19C19.5 19 21 19 21 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M7 8C7 5.79086 8.79086 4 11 4C13.2091 4 15 5.79086 15 8C15 10.2091 13.2091 12 11 12C8.79086 12 7 10.2091 7 8Z" fill="currentColor"/>
+                    <path d="M3 21C3 17.134 6.13401 14 10 14C10.5523 14 11 14.4477 11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M19 14C19 14 20 14 21 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
                 <p>
                   You've been officially invited by <strong>${organizationName}</strong>
                   to begin your hostel booking process. We're excited to help you find
@@ -185,15 +190,34 @@ export class MailService {
                 </p>
                 <div class="card">
                   <strong>What happens next?</strong><br /><br />
-                  ${colors.emoji} Click the button below to set up your account<br />
-                  📋 Answer a few compatibility questions<br />
-                  🤝 Get matched with your ideal roommate<br />
-                  🏠 Book your room!
+                  
+                  <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" 
+                       alt="Set up account" class="icon">
+                  Click the button below to set up your account<br /><br />
+                  
+                  <img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" 
+                       alt="Answer questions" class="icon">
+                  Answer a few compatibility questions<br /><br />
+                  
+                  <img src="https://cdn-icons-png.flaticon.com/512/1077/1077072.png" 
+                       alt="Get matched" class="icon">
+                  Get matched with your ideal roommate<br /><br />
+                  
+                  <img src="https://cdn-icons-png.flaticon.com/512/1077/1077066.png" 
+                       alt="Book room" class="icon">
+                  Book your room!
                 </div>
                 <div class="button-container">
                   <a href="${inviteLink}" class="button">Set Up My Account</a>
                 </div>
-                <p class="note">⏳ This link expires in <strong>7 days</strong></p>
+                <p class="note">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 6px;">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                  </svg>
+                  This link expires in <strong>7 days</strong>
+                </p>
                 <hr class="divider" />
                 <p class="small-link">
                   Button not working? Copy and paste this link into your browser:<br />
@@ -217,7 +241,7 @@ export class MailService {
       await this.transporter.sendMail({
         from: `${organizationName} <${process.env.MAIL_USER}>`,
         to,
-        subject: `${colors.emoji} ${organizationName} — Your Hostel Booking Invitation`,
+        subject: `${organizationName} — Your Hostel Booking Invitation`,
         html,
       });
       console.log(`Email sent successfully to ${to}`);

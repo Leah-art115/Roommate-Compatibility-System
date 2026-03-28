@@ -126,7 +126,7 @@ export class OrgAdminService {
         name: student.name,
         email: student.email,
         token,
-        inviteLink: `http://localhost:3001/register?token=${token}`,
+        inviteLink: `http://localhost:4200/register?token=${token}`,
       });
     }
 
@@ -173,7 +173,7 @@ export class OrgAdminService {
       name: student.name,
       email: student.email,
       token,
-      inviteLink: `http://localhost:3001/register?token=${token}`,
+      inviteLink: `http://localhost:4200/register?token=${token}`,
     };
   }
 
