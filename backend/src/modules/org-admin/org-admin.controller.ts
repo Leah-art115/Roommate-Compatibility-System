@@ -12,9 +12,13 @@ import {
 } from '@nestjs/common';
 import { OrgAdminService } from './org-admin.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { Role } from '@prisma/client';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.ORG_ADMIN)
 @Controller('org-admin')
 export class OrgAdminController {
   constructor(private orgAdminService: OrgAdminService) {}

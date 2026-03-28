@@ -1,4 +1,34 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  /* Neutral (auth pages - before login) */
+  --color-neutral-primary: #1E293B;
+  --color-neutral-secondary: #64748B;
+  --color-neutral-accent: #F8FAFC;
+
+  /* Female theme (purple) */
+  --color-female-primary: #7C3AED;
+  --color-female-secondary: #DDD6FE;
+  --color-female-accent: #F5F3FF;
+
+  /* Male theme (blue) */
+  --color-male-primary: #1D4ED8;
+  --color-male-secondary: #BFDBFE;
+  --color-male-accent: #EFF6FF;
+
+  /* Status colors (shared) */
+  --color-success: #22C55E;
+  --color-error: #EF4444;
+  --color-warning: #EAB308;
+  --color-info: #3B82F6;
+
+  /* Neutral UI */
+  --color-white: #FFFFFF;
+  --color-background: #F8FAFC;
+  --color-border: #E2E8F0;
+  --color-text-primary: #1E293B;
+  --color-text-secondary: #64748B;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

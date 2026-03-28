@@ -1,0 +1,27 @@
+<div class="fixed top-5 right-5 z-50 flex flex-col gap-3">
+  @for (notif of notificationService.notifications(); track notif.id) {
+    <div
+      class="flex items-center gap-3 px-5 py-4 rounded-xl shadow-lg text-white min-w-[300px] max-w-[400px] transition-all duration-300"
+      [ngClass]="{
+        'bg-green-500': notif.type === 'success',
+        'bg-red-500': notif.type === 'error',
+        'bg-yellow-500': notif.type === 'warning',
+        'bg-blue-500': notif.type === 'info'
+      }"
+    >
+      <i
+        class="fa-solid text-lg"
+        [ngClass]="{
+          'fa-circle-check': notif.type === 'success',
+          'fa-circle-xmark': notif.type === 'error',
+          'fa-triangle-exclamation': notif.type === 'warning',
+          'fa-circle-info': notif.type === 'info'
+        }"
+      ></i>
+      <span class="text-sm font-medium flex-1">{{ notif.message }}</span>
+      <button (click)="notificationService.dismiss(notif.id)" class="ml-2 opacity-75 hover:opacity-100">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  }
+</div>

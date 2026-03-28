@@ -1,0 +1,13 @@
+input:focus {
+  border-color: var(--color-neutral-primary) !important;
+  box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.1);
+}
+
+input[readonly]:focus {
+  box-shadow: none;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
