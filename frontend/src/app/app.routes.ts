@@ -13,12 +13,44 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/auth/register/register').then((m) => m.RegisterComponent),
   },
+
+  // ── Student ──
   {
-    path: 'student/dashboard',
+    path: 'student',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./pages/student/dashboard/dashboard').then((m) => m.StudentDashboardComponent),
+      import('./pages/student/dashboard/student-dashboard').then((m) => m.StudentDashboardComponent),
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./pages/student/dashboard/student-overview').then((m) => m.StudentOverviewComponent),
+      },
+      {
+        path: 'quiz',
+        loadComponent: () =>
+          import('./pages/student/quiz/quiz').then((m) => m.StudentQuizComponent),
+      },
+      {
+        path: 'rooms',
+        loadComponent: () =>
+          import('./pages/student/rooms/student-rooms').then((m) => m.StudentRoomsComponent),
+      },
+      {
+        path: 'my-room',
+        loadComponent: () =>
+          import('./pages/student/my-room/my-room').then((m) => m.StudentMyRoomComponent),
+      },
+      {
+        path: 'complaints',
+        loadComponent: () =>
+          import('./pages/student/complaints/student-complaints').then((m) => m.StudentComplaintsComponent),
+      },
+    ],
   },
+
+  // ── Org Admin ──
   {
     path: 'admin',
     canActivate: [authGuard],
@@ -58,5 +90,6 @@ export const routes: Routes = [
       },
     ],
   },
+
   { path: '**', redirectTo: 'login' },
 ];

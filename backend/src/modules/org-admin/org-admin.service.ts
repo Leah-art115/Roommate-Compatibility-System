@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   Injectable,
   BadRequestException,
@@ -61,21 +63,35 @@ export class OrgAdminService {
     };
   }
 
-  // Get all students
+  // Get all students — joins the User record (if registered) to get bookingStatus
   async getStudents(user: any, organizationId: string) {
     const invites = await this.prisma.invite.findMany({
       where: { organizationId },
       orderBy: { createdAt: 'desc' },
     });
 
-    return invites.map((invite) => ({
-      id: invite.id,
-      name: invite.name,
-      email: invite.email,
-      gender: invite.gender,
-      status: invite.status,
-      inviteSent: !invite.token.startsWith('PENDING_'),
-    }));
+    // Fetch users separately and join by email
+    const users = await this.prisma.user.findMany({
+      where: { email: { in: invites.map((i) => i.email) } },
+      select: { email: true, bookingStatus: true },
+    });
+
+    const userMap = new Map(users.map((u) => [u.email, u]));
+
+    return invites.map((invite) => {
+      const registeredUser = userMap.get(invite.email);
+      return {
+        id: invite.id,
+        name: invite.name,
+        email: invite.email,
+        gender: invite.gender,
+        status: invite.status,
+        inviteSent: !invite.token.startsWith('PENDING_'),
+        // bookingStatus comes from the joined User record; null if not yet registered
+        bookingStatus: registeredUser?.bookingStatus ?? null,
+        hasRoom: registeredUser?.bookingStatus === 'ALLOCATED',
+      };
+    });
   }
 
   // Send invites to all pending students

@@ -1,0 +1,251 @@
+<div>
+
+  <!-- Personalized Welcome Banner -->
+  <div class="rounded-2xl p-6 mb-6 relative overflow-hidden"
+    style="background: linear-gradient(135deg, var(--color-neutral-primary), #334155)">
+
+    <!-- Background decoration -->
+    <div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10"
+      style="background: white; transform: translate(30%, -30%)"></div>
+    <div class="absolute bottom-0 right-16 w-20 h-20 rounded-full opacity-10"
+      style="background: white; transform: translate(0%, 40%)"></div>
+
+    <div class="relative z-10">
+      <p class="text-white/60 text-sm mb-1">Welcome back,</p>
+      <h1 class="text-white text-2xl font-bold mb-1">{{ userName }}</h1>
+      <p class="text-white/60 text-sm">
+        @if (bookingStatus() === 'NOT_STARTED') {
+          Start your hostel booking journey
+        } @else if (bookingStatus() === 'QUIZ_DONE') {
+          Quiz done! Now browse and book your room
+        } @else {
+          You are all set — enjoy your stay!
+        }
+      </p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <i class="fa-solid fa-spinner fa-spin text-3xl" style="color: var(--color-neutral-primary)"></i>
+    </div>
+  } @else {
+
+    <!-- Progress Steps -->
+    <div class="bg-white rounded-2xl border p-6 mb-6" style="border-color: var(--color-border)">
+      <h2 class="text-xs font-semibold mb-6 tracking-widest uppercase"
+        style="color: var(--color-text-secondary)">Your Booking Progress</h2>
+
+      <div class="flex items-start">
+        @for (step of steps; track step.key; let i = $index) {
+          <div class="flex-1 flex flex-col items-center relative">
+
+            <!-- Connector line -->
+            @if (i < steps.length - 1) {
+              <div class="absolute top-5 left-1/2 w-full h-0.5 z-0 transition-all duration-500"
+                [style.background-color]="i < currentStepIndex
+                  ? 'var(--color-success)'
+                  : 'var(--color-border)'">
+              </div>
+            }
+
+            <!-- Circle -->
+            <div class="w-10 h-10 rounded-full flex items-center justify-center z-10 mb-3 transition-all duration-300 shadow-sm"
+              [style.background-color]="i < currentStepIndex
+                ? 'var(--color-success)'
+                : i === currentStepIndex
+                  ? 'var(--color-neutral-primary)'
+                  : 'var(--color-background)'"
+              [style.border]="i > currentStepIndex ? '2px solid var(--color-border)' : 'none'"
+              [style.color]="i <= currentStepIndex ? 'white' : 'var(--color-text-secondary)'">
+              @if (i < currentStepIndex) {
+                <i class="fa-solid fa-check text-sm"></i>
+              } @else {
+                <i class="fa-solid {{ step.icon }} text-sm"></i>
+              }
+            </div>
+
+            <!-- Label -->
+            <p class="text-xs text-center font-medium px-1 leading-tight"
+              [style.color]="i === currentStepIndex
+                ? 'var(--color-text-primary)'
+                : i < currentStepIndex
+                  ? 'var(--color-success)'
+                  : 'var(--color-text-secondary)'">
+              {{ step.label }}
+            </p>
+
+            <!-- Active step CTA -->
+            @if (i === currentStepIndex && step.route) {
+              <button
+                (click)="navigate(step.route)"
+                class="mt-3 px-4 py-1.5 rounded-xl text-xs font-semibold text-white transition-all hover:opacity-90"
+                style="background-color: var(--color-neutral-primary)">
+                Start →
+              </button>
+            }
+
+            <!-- Completed checkmark text -->
+            @if (i < currentStepIndex) {
+              <p class="mt-2 text-xs font-medium" style="color: var(--color-success)">
+                <i class="fa-solid fa-circle-check mr-1"></i>Done
+              </p>
+            }
+
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+      <!-- My Room Card -->
+      <div class="rounded-2xl border overflow-hidden shadow-sm"
+        style="border-color: var(--color-border)">
+        @if (myRoom()) {
+          <div class="p-5"
+            style="background: linear-gradient(135deg, var(--color-neutral-primary), #334155)">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                <i class="fa-solid fa-door-open text-white text-sm"></i>
+              </div>
+              <span class="text-xs px-2 py-1 rounded-full bg-green-400/20 text-green-300 font-medium">
+                <i class="fa-solid fa-circle-check mr-1"></i>Allocated
+              </span>
+            </div>
+            <p class="text-white/60 text-xs mb-1">My Room</p>
+            <p class="text-white text-3xl font-bold">{{ myRoom().room.roomNumber }}</p>
+            <p class="text-white/60 text-xs mt-1">
+              Block {{ myRoom().room.block || 'A' }} &middot;
+              {{ myRoom().roommates.length }} roommate(s)
+            </p>
+            <button
+              (click)="navigate('/student/my-room')"
+              class="mt-4 text-xs font-semibold text-white/80 hover:text-white transition-colors">
+              View details →
+            </button>
+          </div>
+        } @else {
+          <div class="p-5 bg-white">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+                style="background-color: var(--color-background); color: var(--color-text-secondary)">
+                <i class="fa-solid fa-door-open text-sm"></i>
+              </div>
+              <p class="text-sm font-semibold" style="color: var(--color-text-primary)">My Room</p>
+            </div>
+            <p class="text-sm mb-1" style="color: var(--color-text-secondary)">Not allocated yet</p>
+            <p class="text-xs" style="color: var(--color-text-secondary)">
+              Complete the quiz and book a room to get started
+            </p>
+            @if (bookingStatus() === 'QUIZ_DONE') {
+              <button
+                (click)="navigate('/student/rooms')"
+                class="mt-4 text-xs font-semibold transition-colors"
+                style="color: var(--color-neutral-primary)">
+                Browse rooms →
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Complaints Card -->
+      <div class="bg-white rounded-2xl border p-5 shadow-sm" style="border-color: var(--color-border)">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+            style="background-color: #fef2f2; color: var(--color-error)">
+            <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+          </div>
+          @if (openComplaints > 0) {
+            <span class="w-6 h-6 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">
+              {{ openComplaints }}
+            </span>
+          }
+        </div>
+        <p class="text-sm font-semibold mb-1" style="color: var(--color-text-primary)">Complaints</p>
+        @if (openComplaints > 0) {
+          <p class="text-xs" style="color: var(--color-text-secondary)">
+            You have {{ openComplaints }} open complaint(s) awaiting resolution
+          </p>
+        } @else {
+          <p class="text-xs" style="color: var(--color-text-secondary)">
+            No open complaints — all good!
+          </p>
+        }
+        <button
+          (click)="navigate('/student/complaints')"
+          class="mt-4 text-xs font-semibold transition-colors"
+          style="color: var(--color-neutral-primary)">
+          View complaints →
+        </button>
+      </div>
+
+      <!-- Room Switch Card -->
+      <div class="bg-white rounded-2xl border p-5 shadow-sm" style="border-color: var(--color-border)">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+            style="background-color: #fffbeb; color: var(--color-warning)">
+            <i class="fa-solid fa-arrows-rotate text-sm"></i>
+          </div>
+          @if (pendingSwitchRequest) {
+            <span class="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium">
+              <i class="fa-solid fa-clock mr-1"></i>Pending
+            </span>
+          }
+        </div>
+        <p class="text-sm font-semibold mb-1" style="color: var(--color-text-primary)">Room Switch</p>
+        @if (pendingSwitchRequest) {
+          <p class="text-xs" style="color: var(--color-text-secondary)">
+            Your switch request is currently under review
+          </p>
+        } @else if (myRoom()) {
+          <p class="text-xs" style="color: var(--color-text-secondary)">
+            Not happy with your room? You can request a switch
+          </p>
+          <button
+            (click)="navigate('/student/my-room')"
+            class="mt-4 text-xs font-semibold transition-colors"
+            style="color: var(--color-neutral-primary)">
+            Request switch →
+          </button>
+        } @else {
+          <p class="text-xs" style="color: var(--color-text-secondary)">
+            Book a room first to be able to request a switch
+          </p>
+        }
+      </div>
+
+    </div>
+
+    <!-- Quick Actions (only show if not fully allocated) -->
+    @if (bookingStatus() !== 'ALLOCATED') {
+      <div class="bg-white rounded-2xl border p-5 shadow-sm" style="border-color: var(--color-border)">
+        <h2 class="text-xs font-semibold mb-4 tracking-widest uppercase"
+          style="color: var(--color-text-secondary)">Next Steps</h2>
+        <div class="flex flex-col sm:flex-row gap-3">
+          @if (bookingStatus() === 'NOT_STARTED') {
+            <button
+              (click)="navigate('/student/quiz')"
+              class="flex items-center gap-3 px-5 py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
+              style="background-color: var(--color-neutral-primary)">
+              <i class="fa-solid fa-clipboard-question"></i>
+              Start Compatibility Quiz
+            </button>
+          }
+          @if (bookingStatus() === 'QUIZ_DONE') {
+            <button
+              (click)="navigate('/student/rooms')"
+              class="flex items-center gap-3 px-5 py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
+              style="background-color: var(--color-neutral-primary)">
+              <i class="fa-solid fa-door-open"></i>
+              Browse Available Rooms
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+  }
+</div>

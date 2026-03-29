@@ -39,6 +39,27 @@ export class RoomsService {
     return Math.round((matches / total) * 100);
   }
 
+  // Build a side-by-side answer comparison between current student and a roommate
+  private buildAnswerComparison(
+    questions: { id: string; text: string; type: string; options: string[] }[],
+    myAnswers: { questionId: string; answer: string }[],
+    theirAnswers: { questionId: string; answer: string }[],
+  ) {
+    return questions.map((q) => {
+      const mine = myAnswers.find((a) => a.questionId === q.id);
+      const theirs = theirAnswers.find((a) => a.questionId === q.id);
+      return {
+        questionId: q.id,
+        questionText: q.text,
+        questionType: q.type,
+        options: q.options,
+        myAnswer: mine?.answer ?? null,
+        theirAnswer: theirs?.answer ?? null,
+        match: !!mine && !!theirs && mine.answer === theirs.answer,
+      };
+    });
+  }
+
   // Org admin creates a single room
   async createRoom(
     organizationId: string,
@@ -143,9 +164,9 @@ export class RoomsService {
     }));
   }
 
-  // Student gets available rooms with compatibility scores
+  // Student gets available rooms with compatibility scores + full answer breakdowns
   async getAvailableRooms(userId: string, organizationId: string) {
-    // Get the student
+    // Get the student with their answers
     const student = await this.prisma.user.findUnique({
       where: { id: userId },
       include: { answers: true },
@@ -165,7 +186,13 @@ export class RoomsService {
       );
     }
 
-    // Get rooms that match student gender and are not full
+    // Get all questions for the organization (for answer comparison labels)
+    const questions = await this.prisma.question.findMany({
+      where: { organizationId },
+      orderBy: { order: 'asc' },
+    });
+
+    // Get rooms matching student gender
     const rooms = await this.prisma.room.findMany({
       where: {
         organizationId,
@@ -188,18 +215,25 @@ export class RoomsService {
       (room) => room.allocations.length < room.capacity,
     );
 
-    // Calculate compatibility for each room
+    const myAnswers = student.answers.map((a) => ({
+      questionId: a.questionId,
+      answer: a.answer,
+    }));
+
+    // Build response with compatibility scores + answer breakdowns
     return availableRooms.map((room) => {
       const occupants = room.allocations.map((allocation) => {
-        const compatibility = this.calculateCompatibility(
-          student.answers.map((a) => ({
-            questionId: a.questionId,
-            answer: a.answer,
-          })),
-          allocation.user.answers.map((a) => ({
-            questionId: a.questionId,
-            answer: a.answer,
-          })),
+        const theirAnswers = allocation.user.answers.map((a) => ({
+          questionId: a.questionId,
+          answer: a.answer,
+        }));
+
+        const compatibility = this.calculateCompatibility(myAnswers, theirAnswers);
+
+        const answerComparison = this.buildAnswerComparison(
+          questions,
+          myAnswers,
+          theirAnswers,
         );
 
         return {
@@ -207,6 +241,7 @@ export class RoomsService {
           name: allocation.user.name,
           gender: allocation.user.gender,
           compatibility,
+          answerComparison,
         };
       });
 
@@ -253,7 +288,6 @@ export class RoomsService {
       throw new BadRequestException('You have already booked a room');
     }
 
-    // Get the room
     const room = await this.prisma.room.findUnique({
       where: { id: roomId },
       include: { allocations: true },
@@ -279,15 +313,10 @@ export class RoomsService {
       throw new BadRequestException('This room is full');
     }
 
-    // Book the room
     await this.prisma.roomAllocation.create({
-      data: {
-        userId,
-        roomId,
-      },
+      data: { userId, roomId },
     });
 
-    // Update student booking status
     await this.prisma.user.update({
       where: { id: userId },
       data: { bookingStatus: 'ALLOCATED' },
@@ -303,35 +332,77 @@ export class RoomsService {
     };
   }
 
-  // Student gets their current room
+  // Student gets their current room with roommates + compatibility + answer breakdowns
   async getMyRoom(userId: string) {
+    const student = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { answers: true },
+    });
+
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
+
     const allocation = await this.prisma.roomAllocation.findUnique({
       where: { userId },
-      include: {
-        room: true,
-      },
+      include: { room: true },
     });
 
     if (!allocation) {
       throw new NotFoundException('You have not been allocated a room yet');
     }
 
-    // Get roommates
-    const roommates = await this.prisma.roomAllocation.findMany({
+    // Get all questions for answer comparison labels
+    const questions = await this.prisma.question.findMany({
+      where: { organizationId: student.organizationId ?? undefined },
+      orderBy: { order: 'asc' },
+    });
+
+    // Get roommates with their answers
+    const roommateAllocations = await this.prisma.roomAllocation.findMany({
       where: {
         roomId: allocation.roomId,
         userId: { not: userId },
       },
       include: {
         user: {
-          select: { id: true, name: true, email: true, gender: true },
+          include: { answers: true },
         },
       },
     });
 
+    const myAnswers = student.answers.map((a) => ({
+      questionId: a.questionId,
+      answer: a.answer,
+    }));
+
+    const roommates = roommateAllocations.map((ra) => {
+      const theirAnswers = ra.user.answers.map((a) => ({
+        questionId: a.questionId,
+        answer: a.answer,
+      }));
+
+      const compatibility = this.calculateCompatibility(myAnswers, theirAnswers);
+
+      const answerComparison = this.buildAnswerComparison(
+        questions,
+        myAnswers,
+        theirAnswers,
+      );
+
+      return {
+        id: ra.user.id,
+        name: ra.user.name,
+        email: ra.user.email,
+        gender: ra.user.gender,
+        compatibility,
+        answerComparison,
+      };
+    });
+
     return {
       room: allocation.room,
-      roommates: roommates.map((r) => r.user),
+      roommates,
     };
   }
 
@@ -356,7 +427,6 @@ export class RoomsService {
       );
     }
 
-    // Check for existing pending switch request
     const existingRequest = await this.prisma.roomSwitchRequest.findFirst({
       where: { userId, status: 'PENDING' },
     });
@@ -379,6 +449,15 @@ export class RoomsService {
       message: 'Room switch request submitted successfully',
       request,
     };
+  }
+
+  // Student gets their own switch requests
+  async getMySwitchRequests(userId: string) {
+    return this.prisma.roomSwitchRequest.findMany({
+      where: { userId },
+      include: { fromRoom: true },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   // Org admin gets all switch requests
@@ -426,23 +505,18 @@ export class RoomsService {
       throw new BadRequestException('This request has already been processed');
     }
 
-    // Remove student from current room
     await this.prisma.roomAllocation.delete({
       where: { userId: request.userId },
     });
 
-    // Update switch request status
     await this.prisma.roomSwitchRequest.update({
       where: { id: requestId },
       data: { status: 'APPROVED' },
     });
 
-    // Increment switch count and reset booking status
     await this.prisma.user.update({
       where: { id: request.userId },
-      data: {
-        bookingStatus: 'QUIZ_DONE',
-      },
+      data: { bookingStatus: 'QUIZ_DONE' },
     });
 
     return {
@@ -451,7 +525,11 @@ export class RoomsService {
   }
 
   // Org admin rejects a switch request
-  async rejectSwitchRequest(requestId: string, organizationId: string, rejectionReason: string) {
+  async rejectSwitchRequest(
+    requestId: string,
+    organizationId: string,
+    rejectionReason: string,
+  ) {
     const request = await this.prisma.roomSwitchRequest.findUnique({
       where: { id: requestId },
       include: { user: true },
@@ -473,12 +551,10 @@ export class RoomsService {
 
     await this.prisma.roomSwitchRequest.update({
       where: { id: requestId },
-      data: { status: 'REJECTED' },
+      data: { status: 'REJECTED', rejectionReason },
     });
 
-    return {
-      message: 'Switch request rejected.',
-    };
+    return { message: 'Switch request rejected.' };
   }
 
   // Org admin deletes a room
@@ -507,12 +583,8 @@ export class RoomsService {
       );
     }
 
-    await this.prisma.room.delete({
-      where: { id: roomId },
-    });
+    await this.prisma.room.delete({ where: { id: roomId } });
 
-    return {
-      message: 'Room deleted successfully',
-    };
+    return { message: 'Room deleted successfully' };
   }
 }

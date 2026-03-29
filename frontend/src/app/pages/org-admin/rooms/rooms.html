@@ -8,14 +8,24 @@
         Manage hostel rooms and view occupancy
       </p>
     </div>
-    <button
-      (click)="openModal()"
-      class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all"
-      style="background-color: var(--color-neutral-primary)"
-    >
-      <i class="fa-solid fa-plus"></i>
-      Add Room
-    </button>
+    <div class="flex items-center gap-2">
+      <button
+        (click)="openBlockModal()"
+        class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border"
+        style="border-color: var(--color-border); color: var(--color-text-secondary)"
+      >
+        <i class="fa-solid fa-building"></i>
+        Manage Blocks
+      </button>
+      <button
+        (click)="openModal()"
+        class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all"
+        style="background-color: var(--color-neutral-primary)"
+      >
+        <i class="fa-solid fa-plus"></i>
+        Add Room
+      </button>
+    </div>
   </div>
 
   <!-- Filters -->
@@ -73,7 +83,7 @@
                     </div>
                     <div>
                       <p class="font-semibold text-sm" style="color: var(--color-text-primary)">Room {{ room.roomNumber }}</p>
-                      <p class="text-xs" style="color: var(--color-text-secondary)">Block {{ room.block || 'N/A' }}</p>
+                      <p class="text-xs" style="color: var(--color-text-secondary)">Block {{ room.block || 'A' }}</p>
                     </div>
                   </div>
                   @if (room.isFull) {
@@ -114,7 +124,7 @@
                 }
                 <div class="px-5 pb-4 flex justify-end">
                   <button
-                    (click)="deleteRoom(room.id)"
+                    (click)="confirmDelete(room.id, room.roomNumber)"
                     [disabled]="deleting() === room.id || room.occupants > 0"
                     class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-all disabled:opacity-40"
                   >
@@ -166,7 +176,7 @@
                     </div>
                     <div>
                       <p class="font-semibold text-sm" style="color: var(--color-text-primary)">Room {{ room.roomNumber }}</p>
-                      <p class="text-xs" style="color: var(--color-text-secondary)">Block {{ room.block || 'N/A' }}</p>
+                      <p class="text-xs" style="color: var(--color-text-secondary)">Block {{ room.block || 'A' }}</p>
                     </div>
                   </div>
                   @if (room.isFull) {
@@ -207,7 +217,7 @@
                 }
                 <div class="px-5 pb-4 flex justify-end">
                   <button
-                    (click)="deleteRoom(room.id)"
+                    (click)="confirmDelete(room.id, room.roomNumber)"
                     [disabled]="deleting() === room.id || room.occupants > 0"
                     class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-all disabled:opacity-40"
                   >
@@ -230,7 +240,9 @@
 
 </div>
 
-<!-- Add Room Modal -->
+<!-- ═══════════════════════════════════════════════
+     Add Room Modal
+════════════════════════════════════════════════ -->
 @if (showModal()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
     style="background-color: rgba(0,0,0,0.5)"
@@ -245,70 +257,103 @@
         </button>
       </div>
 
+      <!-- Gender Block -->
       <div class="mb-4">
-        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Room Number</label>
-        <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
-            <i class="fa-solid fa-door-open text-sm"></i>
-          </span>
-          <input type="text" [(ngModel)]="form.roomNumber" placeholder="e.g. 101"
-            class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none"
-            style="border-color: var(--color-border); color: var(--color-text-primary)" />
-        </div>
-      </div>
-
-      <div class="mb-4">
-        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Block</label>
-        <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
-            <i class="fa-solid fa-building text-sm"></i>
-          </span>
-          <input type="text" [(ngModel)]="form.block" placeholder="e.g. A"
-            class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none"
-            style="border-color: var(--color-border); color: var(--color-text-primary)" />
-        </div>
-      </div>
-
-      <div class="mb-4">
-        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Capacity</label>
-        <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
-            <i class="fa-solid fa-people-group text-sm"></i>
-          </span>
-          <input type="number" [(ngModel)]="form.capacity" min="1" max="8"
-            class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none"
-            style="border-color: var(--color-border); color: var(--color-text-primary)" />
-        </div>
-      </div>
-
-      <div class="mb-6">
         <label class="block text-sm font-medium mb-2" style="color: var(--color-text-primary)">Gender Block</label>
         <div class="flex gap-3">
-          <button (click)="form.gender = 'female'"
+          <button (click)="form.gender = 'female'; onGenderOrFloorChange()"
             class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-medium transition-all"
             [style.background-color]="form.gender === 'female' ? 'var(--color-female-accent)' : 'white'"
             [style.border-color]="form.gender === 'female' ? 'var(--color-female-primary)' : 'var(--color-border)'"
             [style.color]="form.gender === 'female' ? 'var(--color-female-primary)' : 'var(--color-text-secondary)'">
-            <i class="fa-solid fa-venus"></i> Female Block
+            <i class="fa-solid fa-venus"></i> Girls Block
           </button>
-          <button (click)="form.gender = 'male'"
+          <button (click)="form.gender = 'male'; onGenderOrFloorChange()"
             class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-medium transition-all"
             [style.background-color]="form.gender === 'male' ? 'var(--color-male-accent)' : 'white'"
             [style.border-color]="form.gender === 'male' ? 'var(--color-male-primary)' : 'var(--color-border)'"
             [style.color]="form.gender === 'male' ? 'var(--color-male-primary)' : 'var(--color-text-secondary)'">
-            <i class="fa-solid fa-mars"></i> Male Block
+            <i class="fa-solid fa-mars"></i> Boys Block
           </button>
         </div>
       </div>
 
-      <div class="flex gap-3">
+      <!-- Floor -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Floor</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
+            <i class="fa-solid fa-layer-group text-sm"></i>
+          </span>
+          <select
+            [(ngModel)]="form.floor"
+            (ngModelChange)="onGenderOrFloorChange()"
+            class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none appearance-none bg-white"
+            style="border-color: var(--color-border); color: var(--color-text-primary)">
+            @for (f of availableFloors; track f.value) {
+              <option [value]="f.value">{{ f.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Suggested Room Number -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">
+          Room Number
+          <span class="text-xs font-normal ml-1" style="color: var(--color-text-secondary)">(auto-suggested)</span>
+        </label>
+        @if (floorFull) {
+          <div class="flex items-center gap-2 px-4 py-3 rounded-xl border text-sm"
+            style="border-color: var(--color-error); background-color: #fef2f2; color: var(--color-error)">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            This floor is full — all 10 rooms are taken
+          </div>
+        } @else {
+          <div class="flex items-center gap-3 px-4 py-3 rounded-xl border"
+            style="border-color: var(--color-border); background-color: var(--color-bg-subtle, #f9fafb)">
+            @if (form.roomNumber) {
+              <span class="text-lg font-bold" style="color: var(--color-text-primary)">{{ form.roomNumber }}</span>
+              <span class="text-xs" style="color: var(--color-text-secondary)">
+                — {{ roomDescription(form.roomNumber, form.gender, form.floor) }}
+              </span>
+            } @else {
+              <span class="text-sm italic" style="color: var(--color-text-secondary)">
+                Select gender and floor to see suggestion
+              </span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Block (only shown if multiple blocks exist) -->
+      @if (multipleBlocks) {
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Block</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
+              <i class="fa-solid fa-building text-sm"></i>
+            </span>
+            <select
+              [(ngModel)]="form.block"
+              class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none appearance-none bg-white"
+              style="border-color: var(--color-border); color: var(--color-text-primary)">
+              @for (b of blocks(); track b) {
+                <option [value]="b">Block {{ b }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      }
+
+      <div class="flex gap-3 mt-6">
         <button (click)="closeModal()"
           class="flex-1 py-3 rounded-xl text-sm font-medium border transition-all"
           style="border-color: var(--color-border); color: var(--color-text-secondary)">
           Cancel
         </button>
-        <button (click)="addRoom()" [disabled]="modalLoading()"
-          class="flex-1 py-3 rounded-xl text-sm font-semibold text-white transition-all flex items-center justify-center gap-2"
+        <button (click)="addRoom()" [disabled]="modalLoading() || floorFull || !form.roomNumber"
+          class="flex-1 py-3 rounded-xl text-sm font-semibold text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           style="background-color: var(--color-neutral-primary)">
           @if (modalLoading()) {
             <i class="fa-solid fa-spinner fa-spin"></i>
@@ -316,6 +361,108 @@
             <i class="fa-solid fa-plus"></i>
           }
           Add Room
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════
+     Delete Confirmation Modal
+════════════════════════════════════════════════ -->
+@if (showDeleteModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
+    style="background-color: rgba(0,0,0,0.5)"
+    (click)="cancelDelete()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6"
+      (click)="$event.stopPropagation()">
+
+      <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
+        <i class="fa-solid fa-trash text-red-600"></i>
+      </div>
+
+      <h2 class="text-lg font-bold text-center mb-1" style="color: var(--color-text-primary)">Delete Room</h2>
+      <p class="text-sm text-center mb-6" style="color: var(--color-text-secondary)">
+        Are you sure you want to delete
+        <span class="font-semibold" style="color: var(--color-text-primary)">Room {{ roomToDelete()?.roomNumber }}</span>?
+        This action cannot be undone.
+      </p>
+
+      <div class="flex gap-3">
+        <button (click)="cancelDelete()"
+          class="flex-1 py-3 rounded-xl text-sm font-medium border transition-all"
+          style="border-color: var(--color-border); color: var(--color-text-secondary)">
+          Cancel
+        </button>
+        <button (click)="deleteRoom()"
+          class="flex-1 py-3 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-all">
+          Delete
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════
+     Manage Blocks Modal
+════════════════════════════════════════════════ -->
+@if (showBlockModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
+    style="background-color: rgba(0,0,0,0.5)"
+    (click)="closeBlockModal()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6"
+      (click)="$event.stopPropagation()">
+
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-bold" style="color: var(--color-text-primary)">Manage Blocks</h2>
+        <button (click)="closeBlockModal()" style="color: var(--color-text-secondary)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Existing blocks -->
+      <div class="mb-5">
+        <p class="text-xs font-medium mb-2" style="color: var(--color-text-secondary)">Current Blocks</p>
+        <div class="flex flex-wrap gap-2">
+          @for (b of blocks(); track b) {
+            <span class="px-3 py-1.5 rounded-lg text-sm font-semibold border"
+              style="border-color: var(--color-border); color: var(--color-text-primary); background: var(--color-bg-subtle, #f9fafb)">
+              Block {{ b }}
+            </span>
+          }
+        </div>
+      </div>
+
+      <!-- Add new block -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Add New Block</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
+            <i class="fa-solid fa-building text-sm"></i>
+          </span>
+          <input type="text" [(ngModel)]="newBlockName" placeholder="e.g. B"
+            class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none"
+            style="border-color: var(--color-border); color: var(--color-text-primary)"
+            (keyup.enter)="addBlock()" />
+        </div>
+        <p class="text-xs mt-1" style="color: var(--color-text-secondary)">
+          Each block is a separate hostel building. Rooms inside start their own numbering from 001.
+        </p>
+      </div>
+
+      <div class="flex gap-3">
+        <button (click)="closeBlockModal()"
+          class="flex-1 py-3 rounded-xl text-sm font-medium border transition-all"
+          style="border-color: var(--color-border); color: var(--color-text-secondary)">
+          Close
+        </button>
+        <button (click)="addBlock()"
+          class="flex-1 py-3 rounded-xl text-sm font-semibold text-white transition-all flex items-center justify-center gap-2"
+          style="background-color: var(--color-neutral-primary)">
+          <i class="fa-solid fa-plus"></i>
+          Add Block
         </button>
       </div>
 

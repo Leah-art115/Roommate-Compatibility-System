@@ -1,0 +1,269 @@
+<div>
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold" style="color: var(--color-text-primary)">My Room</h1>
+    <p class="text-sm mt-1" style="color: var(--color-text-secondary)">Your current room assignment and roommates</p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <i class="fa-solid fa-spinner fa-spin text-3xl" style="color: var(--color-neutral-primary)"></i>
+    </div>
+  } @else if (!myRoom()) {
+    <div class="bg-white rounded-2xl border p-12 text-center" style="border-color: var(--color-border)">
+      <i class="fa-solid fa-house text-4xl mb-4" style="color: var(--color-border)"></i>
+      <p class="font-medium" style="color: var(--color-text-primary)">No room assigned yet</p>
+      <p class="text-sm mt-1 mb-6" style="color: var(--color-text-secondary)">Complete the quiz and browse rooms to book one.</p>
+      <a routerLink="/student/rooms"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
+        style="background-color: var(--color-neutral-primary)">
+        <i class="fa-solid fa-door-open"></i> Browse Rooms
+      </a>
+    </div>
+  } @else {
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Left: Room info + roommates -->
+      <div class="lg:col-span-2 space-y-4">
+
+        <!-- Room card -->
+        <div class="bg-white rounded-2xl border p-5" style="border-color: var(--color-border)">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-lg"
+              style="background-color: var(--color-neutral-accent); color: var(--color-neutral-primary)">
+              {{ myRoom().room.roomNumber }}
+            </div>
+            <div>
+              <p class="font-bold text-lg" style="color: var(--color-text-primary)">Room {{ myRoom().room.roomNumber }}</p>
+              <p class="text-sm" style="color: var(--color-text-secondary)">
+                Block {{ myRoom().room.block || 'A' }} · Capacity {{ myRoom().room.capacity }}
+              </p>
+            </div>
+            <div class="ml-auto">
+              <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                <i class="fa-solid fa-circle-check"></i> Allocated
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Roommates -->
+        <div class="bg-white rounded-2xl border overflow-hidden" style="border-color: var(--color-border)">
+          <div class="px-5 py-4 border-b" style="border-color: var(--color-border)">
+            <h2 class="font-semibold text-sm" style="color: var(--color-text-primary)">
+              Roommates
+              <span class="font-normal ml-1" style="color: var(--color-text-secondary)">({{ myRoom().roommates.length }})</span>
+            </h2>
+          </div>
+
+          @if (myRoom().roommates.length === 0) {
+            <div class="p-8 text-center">
+              <p class="text-sm" style="color: var(--color-text-secondary)">No roommates yet — you're the first one in!</p>
+            </div>
+          } @else {
+            <div class="divide-y" style="border-color: var(--color-border)">
+              @for (roommate of myRoom().roommates; track roommate.id) {
+                <div>
+                  <!-- Roommate row -->
+                  <div
+                    class="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                    (click)="toggleRoommate(roommate.id)">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                        style="background-color: var(--color-neutral-primary)">
+                        {{ roommate.name?.charAt(0)?.toUpperCase() }}
+                      </div>
+                      <div>
+                        <p class="font-medium text-sm" style="color: var(--color-text-primary)">{{ roommate.name }}</p>
+                        <p class="text-xs" style="color: var(--color-text-secondary)">{{ roommate.email }}</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="px-2.5 py-1 rounded-xl text-sm font-bold"
+                        [style.background-color]="compatibilityBg(roommate.compatibility)"
+                        [style.color]="compatibilityColor(roommate.compatibility)">
+                        {{ roommate.compatibility }}% match
+                      </span>
+                      <i class="fa-solid text-xs"
+                        style="color: var(--color-text-secondary)"
+                        [ngClass]="expandedRoommate() === roommate.id ? 'fa-chevron-up' : 'fa-chevron-down'">
+                      </i>
+                    </div>
+                  </div>
+
+                  <!-- Answer comparison -->
+                  @if (expandedRoommate() === roommate.id) {
+                    <div class="px-5 pb-4 pt-2 space-y-3" style="background-color: var(--color-background)">
+                      @for (comparison of roommate.answerComparison; track comparison.questionId) {
+                        <div class="rounded-xl border p-4 bg-white" style="border-color: var(--color-border)">
+                          <p class="text-xs font-semibold mb-3" style="color: var(--color-text-primary)">
+                            {{ comparison.questionText }}
+                          </p>
+                          <div class="flex items-center gap-3">
+                            <div class="flex-1 text-center">
+                              <p class="text-xs mb-1" style="color: var(--color-text-secondary)">You</p>
+                              <span class="inline-block px-2 py-1 rounded-lg text-xs font-medium w-full text-center"
+                                style="background-color: var(--color-neutral-accent); color: var(--color-neutral-primary)">
+                                {{ comparison.myAnswer ?? '—' }}
+                              </span>
+                            </div>
+                            <div class="flex-shrink-0">
+                              @if (comparison.match) {
+                                <i class="fa-solid fa-equals text-sm" style="color: var(--color-success)"></i>
+                              } @else {
+                                <i class="fa-solid fa-not-equal text-sm" style="color: var(--color-error)"></i>
+                              }
+                            </div>
+                            <div class="flex-1 text-center">
+                              <p class="text-xs mb-1" style="color: var(--color-text-secondary)">{{ roommate.name }}</p>
+                              <span class="inline-block px-2 py-1 rounded-lg text-xs font-medium w-full text-center"
+                                [style.background-color]="comparison.match ? '#dcfce7' : '#fee2e2'"
+                                [style.color]="comparison.match ? 'var(--color-success)' : 'var(--color-error)'">
+                                {{ comparison.theirAnswer ?? '—' }}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+      </div>
+
+      <!-- Right: Switch requests -->
+      <div class="space-y-4">
+
+        <!-- Switch request action -->
+        <div class="bg-white rounded-2xl border p-5" style="border-color: var(--color-border)">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center"
+              style="background-color: #fffbeb; color: var(--color-warning)">
+              <i class="fa-solid fa-arrows-rotate text-sm"></i>
+            </div>
+            <div>
+              <p class="font-semibold text-sm" style="color: var(--color-text-primary)">Room Switch</p>
+              <p class="text-xs" style="color: var(--color-text-secondary)">{{ switchesUsed }}/2 switches used</p>
+            </div>
+          </div>
+
+          <!-- Switch count bar -->
+          <div class="w-full bg-gray-100 rounded-full h-1.5 mb-4">
+            <div class="h-1.5 rounded-full transition-all"
+              [style.width]="(switchesUsed / 2 * 100) + '%'"
+              [style.background-color]="switchesUsed >= 2 ? 'var(--color-error)' : 'var(--color-warning)'">
+            </div>
+          </div>
+
+          @if (pendingSwitchRequest) {
+            <div class="flex items-center gap-2 p-3 rounded-xl bg-yellow-50 border border-yellow-200 text-xs text-yellow-700">
+              <i class="fa-solid fa-clock"></i>
+              Switch request pending review
+            </div>
+          } @else if (switchesUsed >= 2) {
+            <div class="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700">
+              <i class="fa-solid fa-lock"></i>
+              Maximum switches reached. This room is permanent.
+            </div>
+          } @else {
+            <button
+              (click)="openSwitchModal()"
+              class="w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
+              style="background-color: var(--color-neutral-primary)">
+              Request Switch
+            </button>
+          }
+        </div>
+
+        <!-- Switch history -->
+        @if (switchRequests().length > 0) {
+          <div class="bg-white rounded-2xl border p-5" style="border-color: var(--color-border)">
+            <p class="font-semibold text-sm mb-4" style="color: var(--color-text-primary)">Switch History</p>
+            <div class="space-y-3">
+              @for (req of switchRequests(); track req.id) {
+                <div class="flex items-start gap-3 p-3 rounded-xl"
+                  style="background-color: var(--color-background)">
+                  <i class="fa-solid mt-0.5 text-sm"
+                    [ngClass]="switchStatusIcon(req.status)"
+                    [class]="req.status === 'APPROVED' ? 'text-green-600' : req.status === 'REJECTED' ? 'text-red-600' : 'text-yellow-600'">
+                  </i>
+                  <div>
+                    <p class="text-xs font-medium" style="color: var(--color-text-primary)">{{ req.reason }}</p>
+                    <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium"
+                      [ngClass]="switchStatusColor(req.status)">
+                      {{ req.status }}
+                    </span>
+                    @if (req.rejectionReason) {
+                      <p class="text-xs mt-1" style="color: var(--color-error)">{{ req.rejectionReason }}</p>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Switch Request Modal -->
+@if (showSwitchModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
+    style="background-color: rgba(0,0,0,0.5)"
+    (click)="closeSwitchModal()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6"
+      (click)="$event.stopPropagation()">
+
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-bold" style="color: var(--color-text-primary)">Request Room Switch</h2>
+        <button (click)="closeSwitchModal()" style="color: var(--color-text-secondary)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-3 rounded-xl mb-5 text-xs"
+        style="background-color: #fffbeb; color: var(--color-warning); border: 1px solid #fde68a">
+        <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+        You have {{ 2 - switchesUsed }} switch(es) remaining after this one. Use them wisely.
+      </div>
+
+      <div class="mb-5">
+        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">
+          Reason for switch
+        </label>
+        <textarea
+          [(ngModel)]="switchReason"
+          rows="4"
+          placeholder="Explain why you need a room change..."
+          class="w-full px-4 py-3 rounded-xl border text-sm outline-none resize-none"
+          style="border-color: var(--color-border); color: var(--color-text-primary)">
+        </textarea>
+      </div>
+
+      <div class="flex gap-3">
+        <button (click)="closeSwitchModal()"
+          class="flex-1 py-3 rounded-xl text-sm font-medium border"
+          style="border-color: var(--color-border); color: var(--color-text-secondary)">
+          Cancel
+        </button>
+        <button (click)="submitSwitchRequest()" [disabled]="submittingSwitch()"
+          class="flex-1 py-3 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50"
+          style="background-color: var(--color-neutral-primary)">
+          @if (submittingSwitch()) {
+            <i class="fa-solid fa-spinner fa-spin"></i>
+          } @else {
+            <i class="fa-solid fa-paper-plane"></i>
+          }
+          Submit
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

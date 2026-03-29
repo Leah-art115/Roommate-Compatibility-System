@@ -1,28 +1,35 @@
-/* eslint-disable @typescript-eslint/require-await */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   Injectable,
-  NotFoundException,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { ComplaintCategory } from '@prisma/client';
 
 @Injectable()
 export class ComplaintsService {
   constructor(private prisma: PrismaService) {}
 
   // Student submits a complaint
-  async submitComplaint(
+  async createComplaint(
     userId: string,
-    category: 'ROOMMATE_BEHAVIOR' | 'ROOM_CONDITION' | 'NOISE' | 'OTHER',
+    category: ComplaintCategory,
     description: string,
   ) {
     if (!description || description.trim().length < 10) {
       throw new BadRequestException(
-        'Please provide a detailed description (at least 10 characters)',
+        'Please provide a description of at least 10 characters',
+      );
+    }
+
+    // Student must have a room to submit a complaint
+    const allocation = await this.prisma.roomAllocation.findUnique({
+      where: { userId },
+    });
+
+    if (!allocation) {
+      throw new BadRequestException(
+        'You must be allocated to a room before submitting a complaint',
       );
     }
 
@@ -30,7 +37,7 @@ export class ComplaintsService {
       data: {
         userId,
         category,
-        description,
+        description: description.trim(),
       },
     });
 
@@ -42,14 +49,23 @@ export class ComplaintsService {
 
   // Student gets their own complaints
   async getMyComplaints(userId: string) {
-    return this.prisma.complaint.findMany({
+    const complaints = await this.prisma.complaint.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
     });
+
+    return complaints.map((c) => ({
+      id: c.id,
+      category: c.category,
+      description: c.description,
+      status: c.status,
+      createdAt: c.createdAt,
+      updatedAt: c.updatedAt,
+    }));
   }
 
-  // Org admin gets all complaints — open first, resolved at bottom
-  async getAllComplaints(organizationId: string) {
+  // Org admin gets all complaints for their organization
+  async getComplaints(organizationId: string) {
     const complaints = await this.prisma.complaint.findMany({
       where: {
         user: { organizationId },
@@ -59,20 +75,21 @@ export class ComplaintsService {
           select: { id: true, name: true, email: true, gender: true },
         },
       },
-      orderBy: [
-        { status: 'asc' }, // OPEN comes before RESOLVED alphabetically
-        { createdAt: 'desc' },
-      ],
+      orderBy: { createdAt: 'desc' },
     });
 
-    // Sort so OPEN are first, RESOLVED at bottom
-    const open = complaints.filter((c) => c.status === 'OPEN');
-    const resolved = complaints.filter((c) => c.status === 'RESOLVED');
-
-    return [...open, ...resolved];
+    return complaints.map((c) => ({
+      id: c.id,
+      category: c.category,
+      description: c.description,
+      status: c.status,
+      createdAt: c.createdAt,
+      updatedAt: c.updatedAt,
+      student: c.user,
+    }));
   }
 
-  // Org admin marks a complaint as resolved
+  // Org admin resolves a complaint
   async resolveComplaint(complaintId: string, organizationId: string) {
     const complaint = await this.prisma.complaint.findUnique({
       where: { id: complaintId },
@@ -93,13 +110,14 @@ export class ComplaintsService {
       throw new BadRequestException('This complaint is already resolved');
     }
 
-    await this.prisma.complaint.update({
+    const updated = await this.prisma.complaint.update({
       where: { id: complaintId },
       data: { status: 'RESOLVED' },
     });
 
     return {
-      message: 'Complaint marked as resolved',
+      message: 'Complaint resolved successfully',
+      complaint: updated,
     };
   }
 }

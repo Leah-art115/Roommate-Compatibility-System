@@ -14,7 +14,7 @@ import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
-import { Role } from '@prisma/client';
+import { Role, ComplaintCategory } from '@prisma/client';
 
 @UseGuards(JwtAuthGuard)
 @Controller('complaints')
@@ -22,18 +22,13 @@ export class ComplaintsController {
   constructor(private complaintsService: ComplaintsService) {}
 
   // Student submits a complaint
-  @UseGuards(RolesGuard)
   @Roles(Role.USER)
   @Post()
-  submitComplaint(
+  createComplaint(
     @CurrentUser() user: any,
-    @Body()
-    body: {
-      category: 'ROOMMATE_BEHAVIOR' | 'ROOM_CONDITION' | 'NOISE' | 'OTHER';
-      description: string;
-    },
+    @Body() body: { category: ComplaintCategory; description: string },
   ) {
-    return this.complaintsService.submitComplaint(
+    return this.complaintsService.createComplaint(
       user.sub,
       body.category,
       body.description,
@@ -41,7 +36,6 @@ export class ComplaintsController {
   }
 
   // Student gets their own complaints
-  @UseGuards(RolesGuard)
   @Roles(Role.USER)
   @Get('my')
   getMyComplaints(@CurrentUser() user: any) {
@@ -52,11 +46,11 @@ export class ComplaintsController {
   @UseGuards(RolesGuard)
   @Roles(Role.ORG_ADMIN)
   @Get('admin')
-  getAllComplaints(@CurrentUser() user: any) {
-    return this.complaintsService.getAllComplaints(user.organizationId);
+  getComplaints(@CurrentUser() user: any) {
+    return this.complaintsService.getComplaints(user.organizationId);
   }
 
-  // Org admin marks complaint as resolved
+  // Org admin resolves a complaint
   @UseGuards(RolesGuard)
   @Roles(Role.ORG_ADMIN)
   @Put(':id/resolve')

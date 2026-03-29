@@ -20,20 +20,25 @@ export class StudentsComponent implements OnInit {
   sendingAll = signal(false);
   deleting = signal<string | null>(null);
 
-  filters: { key: 'ALL' | 'ACCEPTED' | 'PENDING' | 'ALLOCATED'; label: string }[] = [
-  { key: 'ALL', label: 'All' },
-  { key: 'PENDING', label: 'Pending' },
-  { key: 'ACCEPTED', label: 'Registered' },
-  { key: 'ALLOCATED', label: 'Has Room' },
-];
+  filters: { key: 'ALL' | 'ACCEPTED' | 'PENDING' | 'ALLOCATED' | 'FEMALE' | 'MALE'; label: string }[] = [
+    { key: 'ALL', label: 'All' },
+    { key: 'PENDING', label: 'Pending' },
+    { key: 'ACCEPTED', label: 'Registered' },
+    { key: 'ALLOCATED', label: 'Has Room' },
+    { key: 'FEMALE', label: 'Girls' },
+    { key: 'MALE', label: 'Boys' },
+  ];
 
-  // Filter
-  filter = signal<'ALL' | 'ACCEPTED' | 'PENDING' | 'ALLOCATED'>('ALL');
+  filter = signal<'ALL' | 'ACCEPTED' | 'PENDING' | 'ALLOCATED' | 'FEMALE' | 'MALE'>('ALL');
 
-  // Modal
+  // Add Student Modal
   showModal = signal(false);
   modalLoading = signal(false);
   form = { name: '', email: '', gender: '' };
+
+  // Delete Confirmation Modal
+  showDeleteModal = signal(false);
+  studentToDelete = signal<{ id: string; name: string } | null>(null);
 
   ngOnInit() {
     this.loadStudents();
@@ -55,13 +60,19 @@ export class StudentsComponent implements OnInit {
 
   get filteredStudents() {
     const f = this.filter();
-    if (f === 'ALL') return this.students();
     if (f === 'ACCEPTED') return this.students().filter(s => s.status === 'ACCEPTED');
     if (f === 'PENDING') return this.students().filter(s => s.status === 'PENDING');
-    if (f === 'ALLOCATED') return this.students().filter(s => s.inviteSent && s.status === 'ACCEPTED');
+    if (f === 'ALLOCATED') return this.students().filter(s => s.hasRoom === true);
+    if (f === 'FEMALE') return this.students().filter(s => s.gender === 'female');
+    if (f === 'MALE') return this.students().filter(s => s.gender === 'male');
     return this.students();
   }
 
+  setFilter(f: 'ALL' | 'ACCEPTED' | 'PENDING' | 'ALLOCATED' | 'FEMALE' | 'MALE') {
+    this.filter.set(f);
+  }
+
+  // Add Student Modal
   openModal() {
     this.form = { name: '', email: '', gender: '' };
     this.showModal.set(true);
@@ -89,6 +100,39 @@ export class StudentsComponent implements OnInit {
         this.modalLoading.set(false);
         const message = err?.error?.message || 'Failed to add student';
         this.notificationService.show(message, 'error');
+      },
+    });
+  }
+
+  // Delete Confirmation
+  confirmDelete(id: string, name: string) {
+    this.studentToDelete.set({ id, name });
+    this.showDeleteModal.set(true);
+  }
+
+  cancelDelete() {
+    this.studentToDelete.set(null);
+    this.showDeleteModal.set(false);
+  }
+
+  deleteStudent() {
+    const target = this.studentToDelete();
+    if (!target) return;
+
+    this.deleting.set(target.id);
+    this.showDeleteModal.set(false);
+
+    this.orgAdminService.deleteStudent(target.id).subscribe({
+      next: () => {
+        this.notificationService.show('Student removed', 'success');
+        this.deleting.set(null);
+        this.studentToDelete.set(null);
+        this.loadStudents();
+      },
+      error: () => {
+        this.notificationService.show('Failed to remove student', 'error');
+        this.deleting.set(null);
+        this.studentToDelete.set(null);
       },
     });
   }
@@ -121,25 +165,6 @@ export class StudentsComponent implements OnInit {
         this.sendingAll.set(false);
       },
     });
-  }
-
-  deleteStudent(id: string) {
-    this.deleting.set(id);
-    this.orgAdminService.deleteStudent(id).subscribe({
-      next: () => {
-        this.notificationService.show('Student removed', 'success');
-        this.deleting.set(null);
-        this.loadStudents();
-      },
-      error: () => {
-        this.notificationService.show('Failed to remove student', 'error');
-        this.deleting.set(null);
-      },
-    });
-  }
-
-  setFilter(f: 'ALL' | 'ACCEPTED' | 'PENDING' | 'ALLOCATED') {
-    this.filter.set(f);
   }
 
   genderIcon(gender: string) {

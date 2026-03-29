@@ -72,7 +72,7 @@ export class RoomsController {
     return this.roomsService.getRooms(user.organizationId);
   }
 
-  // Student gets available rooms with compatibility scores
+  // Student gets available rooms with compatibility scores + answer breakdowns
   @Get('available')
   getAvailableRooms(@CurrentUser() user: any) {
     return this.roomsService.getAvailableRooms(user.sub, user.organizationId);
@@ -84,7 +84,7 @@ export class RoomsController {
     return this.roomsService.bookRoom(user.sub, user.organizationId, roomId);
   }
 
-  // Student gets their current room
+  // Student gets their current room with roommates + compatibility + answer breakdowns
   @Get('my/room')
   getMyRoom(@CurrentUser() user: any) {
     return this.roomsService.getMyRoom(user.sub);
@@ -94,6 +94,12 @@ export class RoomsController {
   @Post('switch-request')
   requestSwitch(@CurrentUser() user: any, @Body() body: { reason: string }) {
     return this.roomsService.requestSwitch(user.sub, body.reason);
+  }
+
+  // Student gets their own switch requests
+  @Get('my/switch-requests')
+  getMySwitchRequests(@CurrentUser() user: any) {
+    return this.roomsService.getMySwitchRequests(user.sub);
   }
 
   // Org admin gets all switch requests

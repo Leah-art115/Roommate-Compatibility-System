@@ -41,6 +41,10 @@ export class AuthService {
     );
   }
 
+  getProfile(): Observable<{ id: string; name: string; email: string; role: string; organizationId: string }> {
+    return this.http.get<{ id: string; name: string; email: string; role: string; organizationId: string }>(`${this.apiUrl}/auth/profile`);
+  }
+
   getToken(): string | null {
     return localStorage.getItem('access_token');
   }
