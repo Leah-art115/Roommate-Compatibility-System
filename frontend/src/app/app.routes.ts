@@ -20,10 +20,43 @@ export const routes: Routes = [
       import('./pages/student/dashboard/dashboard').then((m) => m.StudentDashboardComponent),
   },
   {
-    path: 'admin/dashboard',
+    path: 'admin',
     canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/org-admin/dashboard/dashboard').then((m) => m.OrgAdminDashboardComponent),
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./pages/org-admin/dashboard/overview').then((m) => m.OverviewComponent),
+      },
+      {
+        path: 'students',
+        loadComponent: () =>
+          import('./pages/org-admin/students/students').then((m) => m.StudentsComponent),
+      },
+      {
+        path: 'rooms',
+        loadComponent: () =>
+          import('./pages/org-admin/rooms/rooms').then((m) => m.RoomsComponent),
+      },
+      {
+        path: 'questions',
+        loadComponent: () =>
+          import('./pages/org-admin/questions/questions').then((m) => m.QuestionsComponent),
+      },
+      {
+        path: 'switch-requests',
+        loadComponent: () =>
+          import('./pages/org-admin/switch-requests/switch-requests').then((m) => m.SwitchRequestsComponent),
+      },
+      {
+        path: 'complaints',
+        loadComponent: () =>
+          import('./pages/org-admin/complaints/complaints').then((m) => m.ComplaintsComponent),
+      },
+    ],
   },
   { path: '**', redirectTo: 'login' },
 ];
