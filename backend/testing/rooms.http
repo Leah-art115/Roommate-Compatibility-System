@@ -1,0 +1,88 @@
+### 1. Login as Org Admin
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@nairobi.ac.ke",
+  "password": "Admin1234!"
+}
+
+###
+
+### 2. Create bulk rooms
+POST http://localhost:3000/rooms/bulk
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzQ3ODE1MTEsImV4cCI6MTc3NTM4NjMxMX0.WA1dj0XcwnSxyP7s6qo1UEUkIoMwMTd4C5gCnXALuKM
+
+{
+  "rooms": [
+    { "roomNumber": "G101", "block": "A", "capacity": 4, "gender": "female" },
+    { "roomNumber": "G102", "block": "A", "capacity": 4, "gender": "female" },
+    { "roomNumber": "B101", "block": "B", "capacity": 4, "gender": "male" },
+    { "roomNumber": "B102", "block": "B", "capacity": 4, "gender": "male" }
+  ]
+}
+
+###
+
+### 3. Get all rooms (admin view)
+GET http://localhost:3000/rooms/admin
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzQ3ODE1MTEsImV4cCI6MTc3NTM4NjMxMX0.WA1dj0XcwnSxyP7s6qo1UEUkIoMwMTd4C5gCnXALuKM
+
+###
+
+### 4. Login as Student
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "olaachieng@gmail.com",
+  "password": "qwerty123"
+}
+
+###
+
+### 5. Student sees available rooms with compatibility
+GET http://localhost:3000/rooms/available
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMTg2NzU4ZS03YTFlLTRlMTItOGNhOS1jOWRmMWQ1NGE5MWYiLCJlbWFpbCI6Im9sYWFjaGllbmdAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJvcmdhbml6YXRpb25JZCI6IjAwZTFlMmRhLTRjNzItNDAxZS05MDdhLTY1NmFhMzBjN2IyNCIsImlhdCI6MTc3NDc4MTU5MSwiZXhwIjoxNzc1Mzg2MzkxfQ.bmUG0eMfO93gdb9knt7E29ONtkk2GRohZnjMuJ3yikc
+
+###
+
+### 6. Student books a room
+POST http://localhost:3000/rooms/book/9f5f3852-a1d9-4cb9-9de2-dbb92d74ebd4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMTg2NzU4ZS03YTFlLTRlMTItOGNhOS1jOWRmMWQ1NGE5MWYiLCJlbWFpbCI6Im9sYWFjaGllbmdAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJvcmdhbml6YXRpb25JZCI6IjAwZTFlMmRhLTRjNzItNDAxZS05MDdhLTY1NmFhMzBjN2IyNCIsImlhdCI6MTc3NDc4MTU5MSwiZXhwIjoxNzc1Mzg2MzkxfQ.bmUG0eMfO93gdb9knt7E29ONtkk2GRohZnjMuJ3yikc
+
+###
+
+### 7. Student sees their room
+GET http://localhost:3000/rooms/my/room
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMTg2NzU4ZS03YTFlLTRlMTItOGNhOS1jOWRmMWQ1NGE5MWYiLCJlbWFpbCI6Im9sYWFjaGllbmdAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJvcmdhbml6YXRpb25JZCI6IjAwZTFlMmRhLTRjNzItNDAxZS05MDdhLTY1NmFhMzBjN2IyNCIsImlhdCI6MTc3NDc4MTU5MSwiZXhwIjoxNzc1Mzg2MzkxfQ.bmUG0eMfO93gdb9knt7E29ONtkk2GRohZnjMuJ3yikc
+
+###
+
+### 8. Student requests a switch
+POST http://localhost:3000/rooms/switch-request
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMTg2NzU4ZS03YTFlLTRlMTItOGNhOS1jOWRmMWQ1NGE5MWYiLCJlbWFpbCI6Im9sYWFjaGllbmdAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJvcmdhbml6YXRpb25JZCI6IjAwZTFlMmRhLTRjNzItNDAxZS05MDdhLTY1NmFhMzBjN2IyNCIsImlhdCI6MTc3NDc4MTU5MSwiZXhwIjoxNzc1Mzg2MzkxfQ.bmUG0eMfO93gdb9knt7E29ONtkk2GRohZnjMuJ3yikc
+
+{
+  "reason": "My new roommate and I have very different sleep schedules"
+}
+
+###
+
+### 9. Org admin sees switch requests
+GET http://localhost:3000/rooms/switch-requests
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzQ3ODE1MTEsImV4cCI6MTc3NTM4NjMxMX0.WA1dj0XcwnSxyP7s6qo1UEUkIoMwMTd4C5gCnXALuKM
+
+###
+
+### 10. Org admin approves switch request
+PUT http://localhost:3000/rooms/switch-requests/REQUEST_ID_HERE/approve
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzQ3ODE1MTEsImV4cCI6MTc3NTM4NjMxMX0.WA1dj0XcwnSxyP7s6qo1UEUkIoMwMTd4C5gCnXALuKM
+
+###
+
+### 11. Org admin rejects switch request
+PUT http://localhost:3000/rooms/switch-requests/REQUEST_ID_HERE/reject
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzQ3ODE1MTEsImV4cCI6MTc3NTM4NjMxMX0.WA1dj0XcwnSxyP7s6qo1UEUkIoMwMTd4C5gCnXALuKM

@@ -1,0 +1,73 @@
+### 1. Login as Org Admin
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@nairobi.ac.ke",
+  "password": "Admin1234!"
+}
+
+###
+
+### 2. Create a question
+POST http://localhost:3000/questions
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzQ3Nzk2MDYsImV4cCI6MTc3NTM4NDQwNn0.LZx09a2rnUt3XQf_UjhBC4fY7B5JCj0n063dtDeNFrw
+
+{
+  "text": "What time do you usually go to sleep?",
+  "type": "SINGLE_CHOICE",
+  "options": ["Before 10pm", "10pm - 12am", "After midnight"],
+  "order": 1
+}
+
+###
+
+### 3. Create another question
+POST http://localhost:3000/questions
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzQ3Nzk2MDYsImV4cCI6MTc3NTM4NDQwNn0.LZx09a2rnUt3XQf_UjhBC4fY7B5JCj0n063dtDeNFrw
+
+{
+  "text": "How do you prefer your living space?",
+  "type": "SINGLE_CHOICE",
+  "options": ["Very clean and tidy", "Moderately clean", "Relaxed about cleanliness"],
+  "order": 2
+}
+
+###
+
+### 4. Get all questions (admin)
+GET http://localhost:3000/questions/admin
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzQ3Nzk2MDYsImV4cCI6MTc3NTM4NDQwNn0.LZx09a2rnUt3XQf_UjhBC4fY7B5JCj0n063dtDeNFrw
+
+###
+
+### 5. Login as Student
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "olaachieng@gmail.com",
+  "password": "qwerty123"
+}
+
+###
+
+### 6. Student gets their questions
+GET http://localhost:3000/questions/my
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMTg2NzU4ZS03YTFlLTRlMTItOGNhOS1jOWRmMWQ1NGE5MWYiLCJlbWFpbCI6Im9sYWFjaGllbmdAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJvcmdhbml6YXRpb25JZCI6IjAwZTFlMmRhLTRjNzItNDAxZS05MDdhLTY1NmFhMzBjN2IyNCIsImlhdCI6MTc3NDc3OTY1MywiZXhwIjoxNzc1Mzg0NDUzfQ.5X-ki2V-BR0GdijyfmUB9SFhVG8-0BskJ_CUIfsDIBw
+
+###
+
+### 7. Student submits answers
+POST http://localhost:3000/questions/submit
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMTg2NzU4ZS03YTFlLTRlMTItOGNhOS1jOWRmMWQ1NGE5MWYiLCJlbWFpbCI6Im9sYWFjaGllbmdAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJvcmdhbml6YXRpb25JZCI6IjAwZTFlMmRhLTRjNzItNDAxZS05MDdhLTY1NmFhMzBjN2IyNCIsImlhdCI6MTc3NDc3OTY1MywiZXhwIjoxNzc1Mzg0NDUzfQ.5X-ki2V-BR0GdijyfmUB9SFhVG8-0BskJ_CUIfsDIBw
+
+{
+  "answers": [
+    { "questionId": "1544e70b-cc24-4123-9e56-ccf6c1dc87d1", "answer": "Before 10pm" },
+    { "questionId": "534dba5e-9144-43fc-a1ba-1b4e5e605a58", "answer": "Very clean and tidy" }
+  ]
+}

@@ -28,7 +28,6 @@ enum InviteStatus {
 enum BookingStatus {
   NOT_STARTED
   QUIZ_DONE
-  MATCHED
   ALLOCATED
 }
 
@@ -36,6 +35,24 @@ enum QuestionType {
   SINGLE_CHOICE
   MULTIPLE_CHOICE
   SCALE
+}
+
+enum SwitchRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ComplaintCategory {
+  ROOMMATE_BEHAVIOR
+  ROOM_CONDITION
+  NOISE
+  OTHER
+}
+
+enum ComplaintStatus {
+  OPEN
+  RESOLVED
 }
 
 model Organization {
@@ -58,14 +75,15 @@ model User {
   gender         String?
   role           Role          @default(USER)
   bookingStatus  BookingStatus @default(NOT_STARTED)
+  switchCount    Int           @default(0)
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id])
   createdAt      DateTime      @default(now())
 
   answers        Answer[]
-  matchAsUser1   RoommateMatch[] @relation("MatchUser1")
-  matchAsUser2   RoommateMatch[] @relation("MatchUser2")
   roomAllocation RoomAllocation?
+  switchRequests RoomSwitchRequest[]
+  complaints     Complaint[]
 }
 
 model Invite {
@@ -107,25 +125,17 @@ model Answer {
 }
 
 model Room {
-  id             String   @id @default(uuid())
+  id             String       @id @default(uuid())
   roomNumber     String
   block          String?
-  capacity       Int      @default(2)
+  capacity       Int          @default(4)
+  gender         String?
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
-  createdAt      DateTime @default(now())
+  createdAt      DateTime     @default(now())
 
   allocations    RoomAllocation[]
-}
-
-model RoommateMatch {
-  id        String   @id @default(uuid())
-  user1Id   String
-  user2Id   String
-  score     Float
-  user1     User     @relation("MatchUser1", fields: [user1Id], references: [id])
-  user2     User     @relation("MatchUser2", fields: [user2Id], references: [id])
-  createdAt DateTime @default(now())
+  switchRequests RoomSwitchRequest[]
 }
 
 model RoomAllocation {
@@ -135,4 +145,28 @@ model RoomAllocation {
   user      User     @relation(fields: [userId], references: [id])
   room      Room     @relation(fields: [roomId], references: [id])
   createdAt DateTime @default(now())
+}
+
+model RoomSwitchRequest {
+  id              String              @id @default(uuid())
+  userId          String
+  fromRoomId      String
+  reason          String
+  status          SwitchRequestStatus @default(PENDING)
+  rejectionReason String?
+  user            User                @relation(fields: [userId], references: [id])
+  fromRoom        Room                @relation(fields: [fromRoomId], references: [id])
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+}
+
+model Complaint {
+  id          String            @id @default(uuid())
+  userId      String
+  category    ComplaintCategory
+  description String
+  status      ComplaintStatus   @default(OPEN)
+  user        User              @relation(fields: [userId], references: [id])
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 }

@@ -51,7 +51,8 @@ export class AuthService {
         email: invite.email,
         organizationId: invite.organizationId,
         password: hashedPassword,
-        name: invite.name, // <-- updated to use real name
+        name: invite.name,
+        gender: invite.gender,  // ← added
         role: 'USER',
       },
     });
