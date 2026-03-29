@@ -1,0 +1,324 @@
+<div>
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold" style="color: var(--color-text-primary)">Rooms</h1>
+      <p class="text-sm mt-1" style="color: var(--color-text-secondary)">
+        Manage hostel rooms and view occupancy
+      </p>
+    </div>
+    <button
+      (click)="openModal()"
+      class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all"
+      style="background-color: var(--color-neutral-primary)"
+    >
+      <i class="fa-solid fa-plus"></i>
+      Add Room
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex items-center gap-2 mb-6">
+    @for (f of filters; track f.key) {
+      <button
+        (click)="setFilter(f.key)"
+        class="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+        [ngClass]="filter() === f.key ? 'text-white' : 'bg-white border'"
+        [style.background-color]="filter() === f.key ? 'var(--color-neutral-primary)' : ''"
+        [style.border-color]="filter() !== f.key ? 'var(--color-border)' : ''"
+        [style.color]="filter() !== f.key ? 'var(--color-text-secondary)' : ''"
+      >
+        {{ f.label }}
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <i class="fa-solid fa-spinner fa-spin text-3xl" style="color: var(--color-neutral-primary)"></i>
+    </div>
+  } @else {
+
+    <!-- Female Block -->
+    @if (showFemaleSection) {
+      <div class="mb-8">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+            style="background-color: var(--color-female-accent); color: var(--color-female-primary)">
+            <i class="fa-solid fa-venus text-sm"></i>
+          </div>
+          <h2 class="text-lg font-semibold" style="color: var(--color-text-primary)">
+            Female Block
+            <span class="text-sm font-normal ml-2" style="color: var(--color-text-secondary)">
+              ({{ femaleRooms.length }} rooms)
+            </span>
+          </h2>
+        </div>
+
+        @if (femaleRooms.length === 0) {
+          <div class="bg-white rounded-2xl p-8 text-center border" style="border-color: var(--color-border)">
+            <p class="text-sm" style="color: var(--color-text-secondary)">No female rooms yet</p>
+          </div>
+        } @else {
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @for (room of femaleRooms; track room.id) {
+              <div class="bg-white rounded-2xl border shadow-sm overflow-hidden" style="border-color: var(--color-border)">
+                <div class="px-5 py-4 flex items-center justify-between border-b" style="border-color: var(--color-border)">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+                      [style.background-color]="genderAccent(room.gender)"
+                      [style.color]="genderColor(room.gender)">
+                      <i class="fa-solid fa-door-open text-sm"></i>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-sm" style="color: var(--color-text-primary)">Room {{ room.roomNumber }}</p>
+                      <p class="text-xs" style="color: var(--color-text-secondary)">Block {{ room.block || 'N/A' }}</p>
+                    </div>
+                  </div>
+                  @if (room.isFull) {
+                    <span class="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-600">Full</span>
+                  } @else if (room.occupants === 0) {
+                    <span class="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 text-gray-500">Empty</span>
+                  } @else {
+                    <span class="text-xs font-medium px-2 py-1 rounded-full bg-green-100 text-green-600">Available</span>
+                  }
+                </div>
+                <div class="px-5 py-4">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs" style="color: var(--color-text-secondary)">Occupancy</span>
+                    <span class="text-xs font-semibold" style="color: var(--color-text-primary)">{{ room.occupants }} / {{ room.capacity }}</span>
+                  </div>
+                  <div class="w-full bg-gray-100 rounded-full h-2">
+                    <div class="h-2 rounded-full transition-all duration-500"
+                      [style.width]="occupancyPercent(room) + '%'"
+                      [style.background-color]="occupancyColor(room)">
+                    </div>
+                  </div>
+                </div>
+                @if (room.students && room.students.length > 0) {
+                  <div class="px-5 pb-4">
+                    <p class="text-xs font-medium mb-2" style="color: var(--color-text-secondary)">Occupants</p>
+                    <div class="space-y-2">
+                      @for (student of room.students; track student.id) {
+                        <div class="flex items-center gap-2">
+                          <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                            [style.background-color]="genderColor(student.gender)">
+                            {{ student.name?.charAt(0)?.toUpperCase() }}
+                          </div>
+                          <span class="text-xs" style="color: var(--color-text-primary)">{{ student.name }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+                <div class="px-5 pb-4 flex justify-end">
+                  <button
+                    (click)="deleteRoom(room.id)"
+                    [disabled]="deleting() === room.id || room.occupants > 0"
+                    class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-all disabled:opacity-40"
+                  >
+                    @if (deleting() === room.id) {
+                      <i class="fa-solid fa-spinner fa-spin"></i>
+                    } @else {
+                      <i class="fa-solid fa-trash"></i>
+                    }
+                    Delete
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Male Block -->
+    @if (showMaleSection) {
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+            style="background-color: var(--color-male-accent); color: var(--color-male-primary)">
+            <i class="fa-solid fa-mars text-sm"></i>
+          </div>
+          <h2 class="text-lg font-semibold" style="color: var(--color-text-primary)">
+            Male Block
+            <span class="text-sm font-normal ml-2" style="color: var(--color-text-secondary)">
+              ({{ maleRooms.length }} rooms)
+            </span>
+          </h2>
+        </div>
+
+        @if (maleRooms.length === 0) {
+          <div class="bg-white rounded-2xl p-8 text-center border" style="border-color: var(--color-border)">
+            <p class="text-sm" style="color: var(--color-text-secondary)">No male rooms yet</p>
+          </div>
+        } @else {
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @for (room of maleRooms; track room.id) {
+              <div class="bg-white rounded-2xl border shadow-sm overflow-hidden" style="border-color: var(--color-border)">
+                <div class="px-5 py-4 flex items-center justify-between border-b" style="border-color: var(--color-border)">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+                      [style.background-color]="genderAccent(room.gender)"
+                      [style.color]="genderColor(room.gender)">
+                      <i class="fa-solid fa-door-open text-sm"></i>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-sm" style="color: var(--color-text-primary)">Room {{ room.roomNumber }}</p>
+                      <p class="text-xs" style="color: var(--color-text-secondary)">Block {{ room.block || 'N/A' }}</p>
+                    </div>
+                  </div>
+                  @if (room.isFull) {
+                    <span class="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-600">Full</span>
+                  } @else if (room.occupants === 0) {
+                    <span class="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 text-gray-500">Empty</span>
+                  } @else {
+                    <span class="text-xs font-medium px-2 py-1 rounded-full bg-green-100 text-green-600">Available</span>
+                  }
+                </div>
+                <div class="px-5 py-4">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs" style="color: var(--color-text-secondary)">Occupancy</span>
+                    <span class="text-xs font-semibold" style="color: var(--color-text-primary)">{{ room.occupants }} / {{ room.capacity }}</span>
+                  </div>
+                  <div class="w-full bg-gray-100 rounded-full h-2">
+                    <div class="h-2 rounded-full transition-all duration-500"
+                      [style.width]="occupancyPercent(room) + '%'"
+                      [style.background-color]="occupancyColor(room)">
+                    </div>
+                  </div>
+                </div>
+                @if (room.students && room.students.length > 0) {
+                  <div class="px-5 pb-4">
+                    <p class="text-xs font-medium mb-2" style="color: var(--color-text-secondary)">Occupants</p>
+                    <div class="space-y-2">
+                      @for (student of room.students; track student.id) {
+                        <div class="flex items-center gap-2">
+                          <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                            [style.background-color]="genderColor(student.gender)">
+                            {{ student.name?.charAt(0)?.toUpperCase() }}
+                          </div>
+                          <span class="text-xs" style="color: var(--color-text-primary)">{{ student.name }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+                <div class="px-5 pb-4 flex justify-end">
+                  <button
+                    (click)="deleteRoom(room.id)"
+                    [disabled]="deleting() === room.id || room.occupants > 0"
+                    class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-all disabled:opacity-40"
+                  >
+                    @if (deleting() === room.id) {
+                      <i class="fa-solid fa-spinner fa-spin"></i>
+                    } @else {
+                      <i class="fa-solid fa-trash"></i>
+                    }
+                    Delete
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+  }
+
+</div>
+
+<!-- Add Room Modal -->
+@if (showModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
+    style="background-color: rgba(0,0,0,0.5)"
+    (click)="closeModal()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6"
+      (click)="$event.stopPropagation()">
+
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-bold" style="color: var(--color-text-primary)">Add Room</h2>
+        <button (click)="closeModal()" style="color: var(--color-text-secondary)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Room Number</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
+            <i class="fa-solid fa-door-open text-sm"></i>
+          </span>
+          <input type="text" [(ngModel)]="form.roomNumber" placeholder="e.g. 101"
+            class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none"
+            style="border-color: var(--color-border); color: var(--color-text-primary)" />
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Block</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
+            <i class="fa-solid fa-building text-sm"></i>
+          </span>
+          <input type="text" [(ngModel)]="form.block" placeholder="e.g. A"
+            class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none"
+            style="border-color: var(--color-border); color: var(--color-text-primary)" />
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Capacity</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
+            <i class="fa-solid fa-people-group text-sm"></i>
+          </span>
+          <input type="number" [(ngModel)]="form.capacity" min="1" max="8"
+            class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none"
+            style="border-color: var(--color-border); color: var(--color-text-primary)" />
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2" style="color: var(--color-text-primary)">Gender Block</label>
+        <div class="flex gap-3">
+          <button (click)="form.gender = 'female'"
+            class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-medium transition-all"
+            [style.background-color]="form.gender === 'female' ? 'var(--color-female-accent)' : 'white'"
+            [style.border-color]="form.gender === 'female' ? 'var(--color-female-primary)' : 'var(--color-border)'"
+            [style.color]="form.gender === 'female' ? 'var(--color-female-primary)' : 'var(--color-text-secondary)'">
+            <i class="fa-solid fa-venus"></i> Female Block
+          </button>
+          <button (click)="form.gender = 'male'"
+            class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-medium transition-all"
+            [style.background-color]="form.gender === 'male' ? 'var(--color-male-accent)' : 'white'"
+            [style.border-color]="form.gender === 'male' ? 'var(--color-male-primary)' : 'var(--color-border)'"
+            [style.color]="form.gender === 'male' ? 'var(--color-male-primary)' : 'var(--color-text-secondary)'">
+            <i class="fa-solid fa-mars"></i> Male Block
+          </button>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button (click)="closeModal()"
+          class="flex-1 py-3 rounded-xl text-sm font-medium border transition-all"
+          style="border-color: var(--color-border); color: var(--color-text-secondary)">
+          Cancel
+        </button>
+        <button (click)="addRoom()" [disabled]="modalLoading()"
+          class="flex-1 py-3 rounded-xl text-sm font-semibold text-white transition-all flex items-center justify-center gap-2"
+          style="background-color: var(--color-neutral-primary)">
+          @if (modalLoading()) {
+            <i class="fa-solid fa-spinner fa-spin"></i>
+          } @else {
+            <i class="fa-solid fa-plus"></i>
+          }
+          Add Room
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

@@ -1,0 +1,165 @@
+<div>
+  <!-- Welcome -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold" style="color: var(--color-text-primary)">
+      Welcome back! 
+      <i class="fa-solid fa-hand-wave text-yellow-400 ml-1"></i>
+    </h1>
+    <p class="text-sm mt-1" style="color: var(--color-text-secondary)">
+      Here's an overview of your organization
+    </p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <i class="fa-solid fa-spinner fa-spin text-3xl" style="color: var(--color-neutral-primary)"></i>
+    </div>
+  } @else {
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+
+      <!-- Total Students -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border" style="border-color: var(--color-border)">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: var(--color-neutral-accent); color: var(--color-neutral-primary)">
+            <i class="fa-solid fa-users text-sm"></i>
+          </div>
+          <span class="text-xs font-medium px-2 py-1 rounded-full" style="background-color: var(--color-background); color: var(--color-text-secondary)">
+            Total
+          </span>
+        </div>
+        <p class="text-3xl font-bold" style="color: var(--color-text-primary)">{{ totalStudents }}</p>
+        <p class="text-sm mt-1" style="color: var(--color-text-secondary)">Students</p>
+      </div>
+
+      <!-- Rooms -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border" style="border-color: var(--color-border)">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #f0fdf4; color: #16a34a">
+            <i class="fa-solid fa-door-open text-sm"></i>
+          </div>
+          <span class="text-xs font-medium px-2 py-1 rounded-full" style="background-color: var(--color-background); color: var(--color-text-secondary)">
+            {{ availableRooms }} available
+          </span>
+        </div>
+        <p class="text-3xl font-bold" style="color: var(--color-text-primary)">{{ totalRooms }}</p>
+        <p class="text-sm mt-1" style="color: var(--color-text-secondary)">Rooms</p>
+      </div>
+
+      <!-- Switch Requests -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border" style="border-color: var(--color-border)">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #fff7ed; color: #ea580c">
+            <i class="fa-solid fa-arrows-rotate text-sm"></i>
+          </div>
+          @if (pendingSwitchRequests > 0) {
+            <span class="text-xs font-medium px-2 py-1 rounded-full bg-orange-100 text-orange-600">
+              {{ pendingSwitchRequests }} pending
+            </span>
+          }
+        </div>
+        <p class="text-3xl font-bold" style="color: var(--color-text-primary)">{{ switchRequests().length }}</p>
+        <p class="text-sm mt-1" style="color: var(--color-text-secondary)">Switch Requests</p>
+      </div>
+
+      <!-- Complaints -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border" style="border-color: var(--color-border)">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #fef2f2; color: #dc2626">
+            <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+          </div>
+          @if (openComplaints > 0) {
+            <span class="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-600">
+              {{ openComplaints }} open
+            </span>
+          }
+        </div>
+        <p class="text-3xl font-bold" style="color: var(--color-text-primary)">{{ complaints().length }}</p>
+        <p class="text-sm mt-1" style="color: var(--color-text-secondary)">Complaints</p>
+      </div>
+
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold mb-4" style="color: var(--color-text-primary)">Quick Actions</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+
+        <a routerLink="/admin/students"
+          class="bg-white rounded-2xl p-4 text-center shadow-sm border hover:shadow-md transition-all cursor-pointer"
+          style="border-color: var(--color-border)">
+          <i class="fa-solid fa-user-plus text-xl mb-2" style="color: var(--color-neutral-primary)"></i>
+          <p class="text-xs font-medium" style="color: var(--color-text-primary)">Add Student</p>
+        </a>
+
+        <a routerLink="/admin/rooms"
+          class="bg-white rounded-2xl p-4 text-center shadow-sm border hover:shadow-md transition-all cursor-pointer"
+          style="border-color: var(--color-border)">
+          <i class="fa-solid fa-door-open text-xl mb-2" style="color: var(--color-neutral-primary)"></i>
+          <p class="text-xs font-medium" style="color: var(--color-text-primary)">Manage Rooms</p>
+        </a>
+
+        <a routerLink="/admin/questions"
+          class="bg-white rounded-2xl p-4 text-center shadow-sm border hover:shadow-md transition-all cursor-pointer"
+          style="border-color: var(--color-border)">
+          <i class="fa-solid fa-clipboard-question text-xl mb-2" style="color: var(--color-neutral-primary)"></i>
+          <p class="text-xs font-medium" style="color: var(--color-text-primary)">Add Questions</p>
+        </a>
+
+        <a routerLink="/admin/students"
+          class="bg-white rounded-2xl p-4 text-center shadow-sm border hover:shadow-md transition-all cursor-pointer"
+          style="border-color: var(--color-border)">
+          <i class="fa-solid fa-envelope text-xl mb-2" style="color: var(--color-neutral-primary)"></i>
+          <p class="text-xs font-medium" style="color: var(--color-text-primary)">Send Invites</p>
+        </a>
+
+        <a routerLink="/admin/switch-requests"
+          class="bg-white rounded-2xl p-4 text-center shadow-sm border hover:shadow-md transition-all cursor-pointer"
+          style="border-color: var(--color-border)">
+          <i class="fa-solid fa-arrows-rotate text-xl mb-2" style="color: var(--color-neutral-primary)"></i>
+          <p class="text-xs font-medium" style="color: var(--color-text-primary)">Switch Requests</p>
+        </a>
+
+        <a routerLink="/admin/complaints"
+          class="bg-white rounded-2xl p-4 text-center shadow-sm border hover:shadow-md transition-all cursor-pointer"
+          style="border-color: var(--color-border)">
+          <i class="fa-solid fa-triangle-exclamation text-xl mb-2" style="color: var(--color-neutral-primary)"></i>
+          <p class="text-xs font-medium" style="color: var(--color-text-primary)">View Complaints</p>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Room Occupancy Summary -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border" style="border-color: var(--color-border)">
+      <h2 class="text-lg font-semibold mb-4" style="color: var(--color-text-primary)">
+        <i class="fa-solid fa-chart-bar mr-2" style="color: var(--color-neutral-primary)"></i>
+        Room Occupancy
+      </h2>
+      <div class="flex items-center gap-4">
+        <div class="flex-1 bg-gray-100 rounded-full h-4 overflow-hidden">
+          <div
+            class="h-full rounded-full transition-all duration-500"
+            style="background-color: var(--color-neutral-primary)"
+            [style.width]="totalRooms > 0 ? (fullRooms / totalRooms * 100) + '%' : '0%'"
+          ></div>
+        </div>
+        <span class="text-sm font-medium whitespace-nowrap" style="color: var(--color-text-secondary)">
+          {{ fullRooms }} / {{ totalRooms }} full
+        </span>
+      </div>
+      <div class="flex gap-6 mt-4">
+        <div class="flex items-center gap-2">
+          <div class="w-3 h-3 rounded-full" style="background-color: var(--color-neutral-primary)"></div>
+          <span class="text-xs" style="color: var(--color-text-secondary)">Full ({{ fullRooms }})</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-3 h-3 rounded-full bg-gray-200"></div>
+          <span class="text-xs" style="color: var(--color-text-secondary)">Available ({{ availableRooms }})</span>
+        </div>
+      </div>
+    </div>
+
+  }
+</div>

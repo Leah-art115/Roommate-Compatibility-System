@@ -1,0 +1,267 @@
+<div>
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold" style="color: var(--color-text-primary)">Students</h1>
+      <p class="text-sm mt-1" style="color: var(--color-text-secondary)">
+        Manage students and send invite emails
+      </p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button
+        (click)="sendAllInvites()"
+        [disabled]="sendingAll()"
+        class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all"
+        style="border-color: var(--color-border); color: var(--color-text-primary); background-color: white"
+      >
+        @if (sendingAll()) {
+          <i class="fa-solid fa-spinner fa-spin"></i>
+        } @else {
+          <i class="fa-solid fa-paper-plane"></i>
+        }
+        Send All Invites
+      </button>
+      <button
+        (click)="openModal()"
+        class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all"
+        style="background-color: var(--color-neutral-primary)"
+      >
+        <i class="fa-solid fa-plus"></i>
+        Add Student
+      </button>
+    </div>
+  </div>
+
+<!-- Filters -->
+<div class="flex items-center gap-2 mb-6">
+  @for (f of filters; track f.key) {
+    <button
+      (click)="setFilter(f.key)"
+      class="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+      [ngClass]="filter() === f.key ? 'text-white' : 'bg-white border'"
+      [style.background-color]="filter() === f.key ? 'var(--color-neutral-primary)' : ''"
+      [style.border-color]="filter() !== f.key ? 'var(--color-border)' : ''"
+      [style.color]="filter() !== f.key ? 'var(--color-text-secondary)' : ''"
+    >
+      {{ f.label }}
+    </button>
+  }
+</div>
+
+  <!-- Table -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <i class="fa-solid fa-spinner fa-spin text-3xl" style="color: var(--color-neutral-primary)"></i>
+    </div>
+  } @else if (filteredStudents.length === 0) {
+    <div class="bg-white rounded-2xl p-12 text-center border" style="border-color: var(--color-border)">
+      <i class="fa-solid fa-users text-4xl mb-4" style="color: var(--color-border)"></i>
+      <p class="font-medium" style="color: var(--color-text-primary)">No students found</p>
+      <p class="text-sm mt-1" style="color: var(--color-text-secondary)">Add a student to get started</p>
+    </div>
+  } @else {
+    <div class="bg-white rounded-2xl border overflow-hidden shadow-sm" style="border-color: var(--color-border)">
+      <table class="w-full">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--color-border); background-color: var(--color-background)">
+            <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wide" style="color: var(--color-text-secondary)">Student</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wide" style="color: var(--color-text-secondary)">Gender</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wide" style="color: var(--color-text-secondary)">Status</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wide" style="color: var(--color-text-secondary)">Invite</th>
+            <th class="text-right px-6 py-3 text-xs font-semibold uppercase tracking-wide" style="color: var(--color-text-secondary)">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (student of filteredStudents; track student.id) {
+            <tr class="border-b last:border-0 hover:bg-gray-50 transition-colors" style="border-color: var(--color-border)">
+
+              <!-- Name + Email -->
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                    [style.background-color]="genderColor(student.gender)">
+                    {{ student.name?.charAt(0)?.toUpperCase() }}
+                  </div>
+                  <div>
+                    <p class="font-medium text-sm" style="color: var(--color-text-primary)">{{ student.name }}</p>
+                    <p class="text-xs" style="color: var(--color-text-secondary)">{{ student.email }}</p>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Gender -->
+              <td class="px-6 py-4">
+                <span class="flex items-center gap-1 text-sm" [style.color]="genderColor(student.gender)">
+                  <i class="fa-solid" [ngClass]="genderIcon(student.gender)"></i>
+                  {{ student.gender | titlecase }}
+                </span>
+              </td>
+
+              <!-- Status -->
+              <td class="px-6 py-4">
+                @if (student.status === 'ACCEPTED') {
+                  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                    <i class="fa-solid fa-circle-check"></i> Registered
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+                    <i class="fa-solid fa-clock"></i> Pending
+                  </span>
+                }
+              </td>
+
+              <!-- Invite Sent -->
+              <td class="px-6 py-4">
+                @if (student.inviteSent) {
+                  <span class="inline-flex items-center gap-1 text-xs text-green-600">
+                    <i class="fa-solid fa-envelope-circle-check"></i> Sent
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center gap-1 text-xs" style="color: var(--color-text-secondary)">
+                    <i class="fa-solid fa-envelope"></i> Not sent
+                  </span>
+                }
+              </td>
+
+              <!-- Actions -->
+              <td class="px-6 py-4">
+                <div class="flex items-center justify-end gap-2">
+                  <button
+                    (click)="sendInvite(student.id)"
+                    [disabled]="sending() === student.id || student.status === 'ACCEPTED'"
+                    class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all"
+                    style="border-color: var(--color-border); color: var(--color-text-primary)"
+                    [class.opacity-40]="student.status === 'ACCEPTED'"
+                  >
+                    @if (sending() === student.id) {
+                      <i class="fa-solid fa-spinner fa-spin"></i>
+                    } @else {
+                      <i class="fa-solid fa-paper-plane"></i>
+                    }
+                    Invite
+                  </button>
+                  <button
+                    (click)="deleteStudent(student.id)"
+                    [disabled]="deleting() === student.id"
+                    class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-all"
+                  >
+                    @if (deleting() === student.id) {
+                      <i class="fa-solid fa-spinner fa-spin"></i>
+                    } @else {
+                      <i class="fa-solid fa-trash"></i>
+                    }
+                  </button>
+                </div>
+              </td>
+
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+</div>
+
+<!-- Add Student Modal -->
+@if (showModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
+    style="background-color: rgba(0,0,0,0.5)"
+    (click)="closeModal()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6"
+      (click)="$event.stopPropagation()">
+
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-bold" style="color: var(--color-text-primary)">Add Student</h2>
+        <button (click)="closeModal()" style="color: var(--color-text-secondary)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Name -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Full Name</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
+            <i class="fa-solid fa-user text-sm"></i>
+          </span>
+          <input
+            type="text"
+            [(ngModel)]="form.name"
+            placeholder="Jane Doe"
+            class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none"
+            style="border-color: var(--color-border); color: var(--color-text-primary)"
+          />
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Email Address</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
+            <i class="fa-solid fa-envelope text-sm"></i>
+          </span>
+          <input
+            type="email"
+            [(ngModel)]="form.email"
+            placeholder="jane@example.com"
+            class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none"
+            style="border-color: var(--color-border); color: var(--color-text-primary)"
+          />
+        </div>
+      </div>
+
+      <!-- Gender -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2" style="color: var(--color-text-primary)">Gender</label>
+        <div class="flex gap-3">
+          <button
+            (click)="form.gender = 'female'"
+            class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-medium transition-all"
+            [style.background-color]="form.gender === 'female' ? 'var(--color-female-accent)' : 'white'"
+            [style.border-color]="form.gender === 'female' ? 'var(--color-female-primary)' : 'var(--color-border)'"
+            [style.color]="form.gender === 'female' ? 'var(--color-female-primary)' : 'var(--color-text-secondary)'"
+          >
+            <i class="fa-solid fa-venus"></i> Female
+          </button>
+          <button
+            (click)="form.gender = 'male'"
+            class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-medium transition-all"
+            [style.background-color]="form.gender === 'male' ? 'var(--color-male-accent)' : 'white'"
+            [style.border-color]="form.gender === 'male' ? 'var(--color-male-primary)' : 'var(--color-border)'"
+            [style.color]="form.gender === 'male' ? 'var(--color-male-primary)' : 'var(--color-text-secondary)'"
+          >
+            <i class="fa-solid fa-mars"></i> Male
+          </button>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex gap-3">
+        <button
+          (click)="closeModal()"
+          class="flex-1 py-3 rounded-xl text-sm font-medium border transition-all"
+          style="border-color: var(--color-border); color: var(--color-text-secondary)"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="addStudent()"
+          [disabled]="modalLoading()"
+          class="flex-1 py-3 rounded-xl text-sm font-semibold text-white transition-all flex items-center justify-center gap-2"
+          style="background-color: var(--color-neutral-primary)"
+        >
+          @if (modalLoading()) {
+            <i class="fa-solid fa-spinner fa-spin"></i>
+          } @else {
+            <i class="fa-solid fa-plus"></i>
+          }
+          Add Student
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
