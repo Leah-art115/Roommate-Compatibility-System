@@ -17,12 +17,13 @@ export class StudentSidebarComponent {
   user = this.authService.getUser();
 
   navItems = [
-    { label: 'Dashboard', icon: 'fa-gauge', route: '/student/dashboard' },
-    { label: 'My Quiz', icon: 'fa-clipboard-question', route: '/student/quiz' },
-    { label: 'Browse Rooms', icon: 'fa-door-open', route: '/student/rooms' },
-    { label: 'My Room', icon: 'fa-house', route: '/student/my-room' },
-    { label: 'Complaints', icon: 'fa-triangle-exclamation', route: '/student/complaints' },
-  ];
+  { label: 'Dashboard', icon: 'fa-gauge', route: '/student/dashboard' },
+  { label: 'My Quiz', icon: 'fa-clipboard-question', route: '/student/quiz' },
+  { label: 'Browse Rooms', icon: 'fa-door-open', route: '/student/rooms' },
+  { label: 'My Room', icon: 'fa-house', route: '/student/my-room' },
+  { label: 'Complaints', icon: 'fa-triangle-exclamation', route: '/student/complaints' },
+  { label: 'Profile', icon: 'fa-user', route: '/student/profile' },
+];
 
   isActive(route: string): boolean {
     return this.router.url === route;

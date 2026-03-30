@@ -49,15 +49,22 @@ export class AuthService {
     return localStorage.getItem('access_token');
   }
 
-  getUser(): JwtPayload | null {
-    const token = this.getToken();
-    if (!token) return null;
-    try {
-      return jwtDecode<JwtPayload>(token);
-    } catch {
-      return null;
-    }
+getUser(): JwtPayload | null {
+  const token = this.getToken();
+  if (!token) return null;
+  try {
+    return jwtDecode<JwtPayload>(token);
+  } catch {
+    return null;
   }
+}
+
+changePassword(currentPassword: string, newPassword: string) {
+  return this.http.post(`${this.apiUrl}/auth/change-password`, {
+    currentPassword,
+    newPassword,
+  });
+}
 
   isLoggedIn(): boolean {
     return !!this.getToken();

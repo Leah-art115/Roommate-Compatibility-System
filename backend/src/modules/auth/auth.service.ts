@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable prettier/prettier */
 import {
   Injectable,
   UnauthorizedException,
@@ -52,7 +51,7 @@ export class AuthService {
         organizationId: invite.organizationId,
         password: hashedPassword,
         name: invite.name,
-        gender: invite.gender,  // ← added
+        gender: invite.gender,
         role: 'USER',
       },
     });
@@ -126,8 +125,19 @@ export class AuthService {
         id: true,
         name: true,
         email: true,
+        gender: true,
         role: true,
+        bookingStatus: true,
+        switchCount: true,
         organizationId: true,
+        createdAt: true,
+        organization: {
+          select: {
+            id: true,
+            name: true,
+            type: true,
+          },
+        },
       },
     });
 
@@ -136,5 +146,46 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+
+    if (!passwordMatch) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    if (newPassword.length < 8) {
+      throw new BadRequestException(
+        'New password must be at least 8 characters',
+      );
+    }
+
+    if (currentPassword === newPassword) {
+      throw new BadRequestException(
+        'New password must be different from current password',
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return { message: 'Password changed successfully' };
   }
 }

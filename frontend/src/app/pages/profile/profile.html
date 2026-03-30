@@ -1,0 +1,286 @@
+<div class="max-w-2xl mx-auto">
+
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold" style="color: var(--color-text-primary)">My Profile</h1>
+    <p class="text-sm mt-1" style="color: var(--color-text-secondary)">
+      Your account information
+    </p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <i class="fa-solid fa-spinner fa-spin text-3xl" style="color: var(--color-neutral-primary)"></i>
+    </div>
+  } @else if (profile()) {
+
+    <!-- Avatar + Name Banner -->
+    <div class="bg-white rounded-2xl border overflow-hidden mb-4 shadow-sm"
+      style="border-color: var(--color-border)">
+
+      <div class="h-32 w-full"
+        style="background: linear-gradient(135deg, var(--color-neutral-primary), #334155)">
+      </div>
+
+      <div class="px-6 pb-6 relative">
+        <div class="flex items-end gap-4 mb-4" style="margin-top: -30px">
+          <div class="w-20 h-20 rounded-2xl border-4 border-white shadow-md flex items-center justify-center text-white text-2xl font-bold flex-shrink-0"
+            [style.background-color]="profile().gender ? genderColor(profile().gender) : 'var(--color-neutral-primary)'">
+            {{ profile().name?.charAt(0)?.toUpperCase() }}
+          </div>
+          <div class="mb-1 flex-1 min-w-0">
+            <h2 class="text-xl font-bold truncate" style="color: var(--color-text-primary)">
+              {{ profile().name }}
+            </h2>
+            <p class="text-sm" style="color: var(--color-text-secondary)">
+              {{ profile().role === 'ORG_ADMIN' ? 'Organization Admin' : 'Student' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="bg-white rounded-2xl border shadow-sm mb-4" style="border-color: var(--color-border)">
+      <div class="px-6 py-4 border-b" style="border-color: var(--color-border)">
+        <h3 class="text-sm font-semibold" style="color: var(--color-text-primary)">
+          <i class="fa-solid fa-circle-info mr-2" style="color: var(--color-neutral-primary)"></i>
+          Personal Information
+        </h3>
+      </div>
+
+      <div class="divide-y" style="border-color: var(--color-border)">
+
+        <!-- Name -->
+        <div class="px-6 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-user w-4 text-center" style="color: var(--color-text-secondary)"></i>
+            <div>
+              <p class="text-xs" style="color: var(--color-text-secondary)">Full Name</p>
+              <p class="text-sm font-medium mt-0.5" style="color: var(--color-text-primary)">
+                {{ profile().name }}
+              </p>
+            </div>
+          </div>
+          <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">Read only</span>
+        </div>
+
+        <!-- Email -->
+        <div class="px-6 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-envelope w-4 text-center" style="color: var(--color-text-secondary)"></i>
+            <div>
+              <p class="text-xs" style="color: var(--color-text-secondary)">Email Address</p>
+              <p class="text-sm font-medium mt-0.5" style="color: var(--color-text-primary)">
+                {{ profile().email }}
+              </p>
+            </div>
+          </div>
+          <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">Read only</span>
+        </div>
+
+        <!-- Gender (students only) -->
+        @if (profile().gender && profile().role === 'USER') {
+          <div class="px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid w-4 text-center"
+                [ngClass]="genderIcon(profile().gender)"
+                [style.color]="genderColor(profile().gender)"></i>
+              <div>
+                <p class="text-xs" style="color: var(--color-text-secondary)">Gender</p>
+                <span class="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-full text-xs font-medium"
+                  [style.background-color]="genderAccent(profile().gender)"
+                  [style.color]="genderColor(profile().gender)">
+                  <i class="fa-solid" [ngClass]="genderIcon(profile().gender)"></i>
+                  {{ profile().gender | titlecase }}
+                </span>
+              </div>
+            </div>
+            <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">Read only</span>
+          </div>
+        }
+
+        <!-- Booking status (students only) -->
+        @if (profile().bookingStatus && profile().role === 'USER') {
+          <div class="px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-hourglass-half w-4 text-center"
+                style="color: var(--color-text-secondary)"></i>
+              <div>
+                <p class="text-xs" style="color: var(--color-text-secondary)">Booking Status</p>
+                <span class="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-full text-xs font-medium"
+                  [ngClass]="bookingStatusColor(profile().bookingStatus)">
+                  {{ bookingStatusLabel(profile().bookingStatus) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        }
+
+      </div>
+    </div>
+
+    <!-- Organization Info -->
+    @if (profile().organization) {
+      <div class="bg-white rounded-2xl border shadow-sm mb-4" style="border-color: var(--color-border)">
+        <div class="px-6 py-4 border-b" style="border-color: var(--color-border)">
+          <h3 class="text-sm font-semibold" style="color: var(--color-text-primary)">
+            <i class="fa-solid fa-building mr-2" style="color: var(--color-neutral-primary)"></i>
+            Organization
+          </h3>
+        </div>
+        <div class="divide-y" style="border-color: var(--color-border)">
+          <div class="px-6 py-4 flex items-center gap-3">
+            <i class="fa-solid fa-building w-4 text-center"
+              style="color: var(--color-text-secondary)"></i>
+            <div>
+              <p class="text-xs" style="color: var(--color-text-secondary)">Organization Name</p>
+              <p class="text-sm font-medium mt-0.5" style="color: var(--color-text-primary)">
+                {{ profile().organization.name }}
+              </p>
+            </div>
+          </div>
+          <div class="px-6 py-4 flex items-center gap-3">
+            <i class="fa-solid fa-tag w-4 text-center"
+              style="color: var(--color-text-secondary)"></i>
+            <div>
+              <p class="text-xs" style="color: var(--color-text-secondary)">Type</p>
+              <p class="text-sm font-medium mt-0.5" style="color: var(--color-text-primary)">
+                {{ orgTypeLabel(profile().organization.type) }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Change Password -->
+    <div class="bg-white rounded-2xl border shadow-sm" style="border-color: var(--color-border)">
+      <div class="px-6 py-4 border-b flex items-center justify-between"
+        style="border-color: var(--color-border)">
+        <h3 class="text-sm font-semibold" style="color: var(--color-text-primary)">
+          <i class="fa-solid fa-lock mr-2" style="color: var(--color-neutral-primary)"></i>
+          Security
+        </h3>
+        <button
+          (click)="togglePasswordForm()"
+          class="text-xs font-medium transition-colors"
+          style="color: var(--color-neutral-primary)">
+          {{ showPasswordForm() ? 'Cancel' : 'Change Password' }}
+        </button>
+      </div>
+
+      @if (!showPasswordForm()) {
+        <div class="px-6 py-4 flex items-center gap-3">
+          <i class="fa-solid fa-key w-4 text-center"
+            style="color: var(--color-text-secondary)"></i>
+          <div>
+            <p class="text-xs" style="color: var(--color-text-secondary)">Password</p>
+            <p class="text-sm font-medium mt-0.5" style="color: var(--color-text-primary)">
+              ••••••••••••
+            </p>
+          </div>
+        </div>
+      } @else {
+        <div class="px-6 py-5 space-y-4">
+
+          <div>
+            <label class="block text-sm font-medium mb-1"
+              style="color: var(--color-text-primary)">Current Password</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2"
+                style="color: var(--color-text-secondary)">
+                <i class="fa-solid fa-lock text-sm"></i>
+              </span>
+              <input
+                [type]="showCurrentPassword() ? 'text' : 'password'"
+                [(ngModel)]="passwordForm.currentPassword"
+                placeholder="Enter current password"
+                class="w-full pl-9 pr-10 py-3 rounded-xl border text-sm outline-none"
+                style="border-color: var(--color-border); color: var(--color-text-primary)" />
+              <button type="button"
+                (click)="showCurrentPassword.set(!showCurrentPassword())"
+                class="absolute right-3 top-1/2 -translate-y-1/2"
+                style="color: var(--color-text-secondary)">
+                <i class="fa-solid text-sm"
+                  [ngClass]="showCurrentPassword() ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1"
+              style="color: var(--color-text-primary)">New Password</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2"
+                style="color: var(--color-text-secondary)">
+                <i class="fa-solid fa-lock text-sm"></i>
+              </span>
+              <input
+                [type]="showNewPassword() ? 'text' : 'password'"
+                [(ngModel)]="passwordForm.newPassword"
+                placeholder="At least 8 characters"
+                class="w-full pl-9 pr-10 py-3 rounded-xl border text-sm outline-none"
+                style="border-color: var(--color-border); color: var(--color-text-primary)" />
+              <button type="button"
+                (click)="showNewPassword.set(!showNewPassword())"
+                class="absolute right-3 top-1/2 -translate-y-1/2"
+                style="color: var(--color-text-secondary)">
+                <i class="fa-solid text-sm"
+                  [ngClass]="showNewPassword() ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1"
+              style="color: var(--color-text-primary)">Confirm New Password</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2"
+                style="color: var(--color-text-secondary)">
+                <i class="fa-solid fa-lock text-sm"></i>
+              </span>
+              <input
+                [type]="showConfirmPassword() ? 'text' : 'password'"
+                [(ngModel)]="passwordForm.confirmPassword"
+                placeholder="Re-enter new password"
+                class="w-full pl-9 pr-10 py-3 rounded-xl border text-sm outline-none"
+                style="border-color: var(--color-border); color: var(--color-text-primary)" />
+              <button type="button"
+                (click)="showConfirmPassword.set(!showConfirmPassword())"
+                class="absolute right-3 top-1/2 -translate-y-1/2"
+                style="color: var(--color-text-secondary)">
+                <i class="fa-solid text-sm"
+                  [ngClass]="showConfirmPassword() ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
+            @if (passwordForm.confirmPassword) {
+              <p class="text-xs mt-1 flex items-center gap-1"
+                [style.color]="passwordForm.newPassword === passwordForm.confirmPassword
+                  ? 'var(--color-success)' : 'var(--color-error)'">
+                <i class="fa-solid"
+                  [ngClass]="passwordForm.newPassword === passwordForm.confirmPassword
+                    ? 'fa-circle-check' : 'fa-circle-xmark'"></i>
+                {{ passwordForm.newPassword === passwordForm.confirmPassword
+                  ? 'Passwords match' : 'Passwords do not match' }}
+              </p>
+            }
+          </div>
+
+          <button
+            (click)="changePassword()"
+            [disabled]="changingPassword()"
+            class="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            style="background-color: var(--color-neutral-primary)">
+            @if (changingPassword()) {
+              <i class="fa-solid fa-spinner fa-spin"></i> Changing...
+            } @else {
+              <i class="fa-solid fa-lock"></i> Change Password
+            }
+          </button>
+
+        </div>
+      }
+    </div>
+
+  }
+</div>

@@ -17,13 +17,14 @@ export class SidebarComponent {
   user = this.authService.getUser();
 
   navItems = [
-    { label: 'Dashboard', icon: 'fa-gauge', route: '/admin/dashboard' },
-    { label: 'Students', icon: 'fa-users', route: '/admin/students' },
-    { label: 'Rooms', icon: 'fa-door-open', route: '/admin/rooms' },
-    { label: 'Questions', icon: 'fa-clipboard-question', route: '/admin/questions' },
-    { label: 'Switch Requests', icon: 'fa-arrows-rotate', route: '/admin/switch-requests' },
-    { label: 'Complaints', icon: 'fa-triangle-exclamation', route: '/admin/complaints' },
-  ];
+  { label: 'Dashboard', icon: 'fa-gauge', route: '/admin/dashboard' },
+  { label: 'Students', icon: 'fa-users', route: '/admin/students' },
+  { label: 'Rooms', icon: 'fa-door-open', route: '/admin/rooms' },
+  { label: 'Questions', icon: 'fa-clipboard-question', route: '/admin/questions' },
+  { label: 'Switch Requests', icon: 'fa-arrows-rotate', route: '/admin/switch-requests' },
+  { label: 'Complaints', icon: 'fa-triangle-exclamation', route: '/admin/complaints' },
+  { label: 'Profile', icon: 'fa-user', route: '/admin/profile' },
+];
 
   isActive(route: string): boolean {
     return this.router.url === route;

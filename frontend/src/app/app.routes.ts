@@ -47,6 +47,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/student/complaints/student-complaints').then((m) => m.StudentComplaintsComponent),
       },
+      {
+  path: 'profile',
+  loadComponent: () =>
+    import('./pages/profile/profile').then((m) => m.ProfileComponent),
+},
     ],
   },
 
@@ -88,6 +93,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/org-admin/complaints/complaints').then((m) => m.ComplaintsComponent),
       },
+      {
+  path: 'profile',
+  loadComponent: () =>
+    import('./pages/profile/profile').then((m) => m.ProfileComponent),
+},
     ],
   },
 

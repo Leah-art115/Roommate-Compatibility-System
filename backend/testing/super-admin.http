@@ -9,33 +9,62 @@ Content-Type: application/json
 
 ###
 
-### 2. Create an organization (paste token from step 1)
+### 2. Get system stats
+GET http://localhost:3000/super-admin/stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDE5MmRiMC1kYWM2LTQ1MzEtYmY3NC05YjE4ZTg1ZDAzYWYiLCJlbWFpbCI6InN1cGVyYWRtaW5Acm9vbW1hdGUuY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOm51bGwsImlhdCI6MTc3NDg1MTUwNywiZXhwIjoxNzc1NDU2MzA3fQ.vbT9hQcIxwOhIkvQcgKmB9Sk_aKSRs6m0tkao8tMkBY
+
+###
+
+### 3. Create organization
 POST http://localhost:3000/super-admin/organizations
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDE5MmRiMC1kYWM2LTQ1MzEtYmY3NC05YjE4ZTg1ZDAzYWYiLCJlbWFpbCI6InN1cGVyYWRtaW5Acm9vbW1hdGUuY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOm51bGwsImlhdCI6MTc3MzQ5MTQwNiwiZXhwIjoxNzczNTc3ODA2fQ.CcsEWe_bAnTME3z-omUw6sMFcmZHUEjgTu2UDR-N87A
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDE5MmRiMC1kYWM2LTQ1MzEtYmY3NC05YjE4ZTg1ZDAzYWYiLCJlbWFpbCI6InN1cGVyYWRtaW5Acm9vbW1hdGUuY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOm51bGwsImlhdCI6MTc3NDg1MTUwNywiZXhwIjoxNzc1NDU2MzA3fQ.vbT9hQcIxwOhIkvQcgKmB9Sk_aKSRs6m0tkao8tMkBY
 
 {
-  "name": "Nairobi University",
+  "name": "Chuka University",
   "type": "SCHOOL"
 }
 
 ###
 
-
-### 3. Get all organizations
+### 4. Get all organizations
 GET http://localhost:3000/super-admin/organizations
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDE5MmRiMC1kYWM2LTQ1MzEtYmY3NC05YjE4ZTg1ZDAzYWYiLCJlbWFpbCI6InN1cGVyYWRtaW5Acm9vbW1hdGUuY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOm51bGwsImlhdCI6MTc3MzQ5MTQwNiwiZXhwIjoxNzczNTc3ODA2fQ.CcsEWe_bAnTME3z-omUw6sMFcmZHUEjgTu2UDR-N87A
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDE5MmRiMC1kYWM2LTQ1MzEtYmY3NC05YjE4ZTg1ZDAzYWYiLCJlbWFpbCI6InN1cGVyYWRtaW5Acm9vbW1hdGUuY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOm51bGwsImlhdCI6MTc3NDg1MTUwNywiZXhwIjoxNzc1NDU2MzA3fQ.vbT9hQcIxwOhIkvQcgKmB9Sk_aKSRs6m0tkao8tMkBY
 
-### 4. Create an org admin (paste organizationId from step 2)
+###
+
+### 5. Get one organization
+GET http://localhost:3000/super-admin/organizations/ORG_ID
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDE5MmRiMC1kYWM2LTQ1MzEtYmY3NC05YjE4ZTg1ZDAzYWYiLCJlbWFpbCI6InN1cGVyYWRtaW5Acm9vbW1hdGUuY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOm51bGwsImlhdCI6MTc3NDg1MTUwNywiZXhwIjoxNzc1NDU2MzA3fQ.vbT9hQcIxwOhIkvQcgKmB9Sk_aKSRs6m0tkao8tMkBY
+
+###
+
+### 6. Delete organization
+DELETE http://localhost:3000/super-admin/organizations/ORG_ID
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDE5MmRiMC1kYWM2LTQ1MzEtYmY3NC05YjE4ZTg1ZDAzYWYiLCJlbWFpbCI6InN1cGVyYWRtaW5Acm9vbW1hdGUuY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOm51bGwsImlhdCI6MTc3NDg1MTUwNywiZXhwIjoxNzc1NDU2MzA3fQ.vbT9hQcIxwOhIkvQcgKmB9Sk_aKSRs6m0tkao8tMkBY
+
+###
+
+### 7. Create org admin
 POST http://localhost:3000/super-admin/org-admins
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDE5MmRiMC1kYWM2LTQ1MzEtYmY3NC05YjE4ZTg1ZDAzYWYiLCJlbWFpbCI6InN1cGVyYWRtaW5Acm9vbW1hdGUuY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOm51bGwsImlhdCI6MTc3MzQ5MTQwNiwiZXhwIjoxNzczNTc3ODA2fQ.CcsEWe_bAnTME3z-omUw6sMFcmZHUEjgTu2UDR-N87A
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDE5MmRiMC1kYWM2LTQ1MzEtYmY3NC05YjE4ZTg1ZDAzYWYiLCJlbWFpbCI6InN1cGVyYWRtaW5Acm9vbW1hdGUuY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOm51bGwsImlhdCI6MTc3NDg1MTUwNywiZXhwIjoxNzc1NDU2MzA3fQ.vbT9hQcIxwOhIkvQcgKmB9Sk_aKSRs6m0tkao8tMkBY
 
 {
-  "name": "Jane Admin",
-  "email": "admin@nairobi.ac.ke",
-  "organizationId": "00e1e2da-4c72-401e-907a-656aa30c7b24",
+  "name": "Leah Admin",
+  "email": "admin@chuka.ac.ke",
+  "organizationId": "1fefddd5-2752-44d5-8995-d8a4adc47660",
   "temporaryPassword": "Admin1234!"
 }
 
 ###
+
+### 8. Get all org admins
+GET http://localhost:3000/super-admin/org-admins
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDE5MmRiMC1kYWM2LTQ1MzEtYmY3NC05YjE4ZTg1ZDAzYWYiLCJlbWFpbCI6InN1cGVyYWRtaW5Acm9vbW1hdGUuY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOm51bGwsImlhdCI6MTc3NDg1MTUwNywiZXhwIjoxNzc1NDU2MzA3fQ.vbT9hQcIxwOhIkvQcgKmB9Sk_aKSRs6m0tkao8tMkBY
+
+###
+
+### 9. Delete org admin
+DELETE http://localhost:3000/super-admin/org-admins/ADMIN_ID
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDE5MmRiMC1kYWM2LTQ1MzEtYmY3NC05YjE4ZTg1ZDAzYWYiLCJlbWFpbCI6InN1cGVyYWRtaW5Acm9vbW1hdGUuY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOm51bGwsImlhdCI6MTc3NDg1MTUwNywiZXhwIjoxNzc1NDU2MzA3fQ.vbT9hQcIxwOhIkvQcgKmB9Sk_aKSRs6m0tkao8tMkBY
