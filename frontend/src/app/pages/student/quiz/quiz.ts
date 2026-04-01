@@ -1,14 +1,14 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { StudentService } from '../../../shared/services/student.service';
 import { NotificationService } from '../../../shared/components/notification/notification.service';
 
 @Component({
   selector: 'app-student-quiz',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './quiz.html',
 })
 export class StudentQuizComponent implements OnInit {
@@ -23,11 +23,9 @@ export class StudentQuizComponent implements OnInit {
 
   currentIndex = signal(0);
 
-  // answers map: questionId -> string (single/scale) or string[] (multiple)
   answers = signal<Record<string, string | string[]>>({});
 
   ngOnInit() {
-    // Check if already answered
     this.studentService.getMyAnswers().subscribe({
       next: (existing) => {
         if (existing.length > 0) {
@@ -59,7 +57,14 @@ export class StudentQuizComponent implements OnInit {
   }
 
   get progress(): number {
-    return Math.round(((this.currentIndex() + 1) / this.questions().length) * 100);
+    if (this.questions().length === 0) return 0;
+    const answered = this.questions().filter(q => {
+      const a = this.answers()[q.id];
+      if (!a) return false;
+      if (Array.isArray(a)) return a.length > 0;
+      return a.toString().trim() !== '';
+    }).length;
+    return Math.round((answered / this.questions().length) * 100);
   }
 
   get isFirst(): boolean {
@@ -75,52 +80,64 @@ export class StudentQuizComponent implements OnInit {
   }
 
   get canProceed(): boolean {
-    const a = this.currentAnswer;
+    const currentQ = this.currentQuestion;
+    if (!currentQ) return false;
+    const a = this.answers()[currentQ.id];
     if (!a) return false;
     if (Array.isArray(a)) return a.length > 0;
     return a.toString().trim() !== '';
   }
 
-  // Single choice
   selectSingle(option: string) {
     const q = this.currentQuestion;
-    this.answers.update(a => ({ ...a, [q.id]: option }));
+    const newAnswers = { ...this.answers(), [q.id]: option };
+    this.answers.set(newAnswers);
   }
 
-  // Multiple choice
   toggleMultiple(option: string) {
     const q = this.currentQuestion;
     const current = (this.answers()[q.id] as string[]) ?? [];
     const updated = current.includes(option)
       ? current.filter(o => o !== option)
       : [...current, option];
-    this.answers.update(a => ({ ...a, [q.id]: updated }));
+    const newAnswers = { ...this.answers(), [q.id]: updated };
+    this.answers.set(newAnswers);
   }
 
   isSelected(option: string): boolean {
-    const a = this.currentAnswer;
+    const currentQ = this.currentQuestion;
+    if (!currentQ) return false;
+    const a = this.answers()[currentQ.id];
     if (Array.isArray(a)) return a.includes(option);
     return a === option;
   }
 
-  // Scale
   selectScale(value: number) {
     const q = this.currentQuestion;
-    this.answers.update(a => ({ ...a, [q.id]: value.toString() }));
+    const newAnswers = { ...this.answers(), [q.id]: value.toString() };
+    this.answers.set(newAnswers);
   }
 
   get scaleValue(): number {
-    const a = this.currentAnswer;
+    const currentQ = this.currentQuestion;
+    if (!currentQ) return 0;
+    const a = this.answers()[currentQ.id];
     return a ? parseInt(a as string, 10) : 0;
   }
 
-  scaleLabels: Record<number, string> = {
-    1: 'Strongly Disagree',
-    2: 'Disagree',
-    3: 'Neutral',
-    4: 'Agree',
-    5: 'Strongly Agree',
-  };
+  get scaleLabels(): Record<number, string> {
+    const q = this.currentQuestion;
+    if (!q || q.type !== 'SCALE') return {};
+    const min = q.scaleMin || 'Strongly Disagree';
+    const max = q.scaleMax || 'Strongly Agree';
+    return {
+      1: min,
+      2: '',
+      3: 'Neutral',
+      4: '',
+      5: max,
+    };
+  }
 
   next() {
     if (!this.isLast) {
@@ -155,7 +172,6 @@ export class StudentQuizComponent implements OnInit {
 
     for (const [questionId, answer] of Object.entries(this.answers())) {
       if (Array.isArray(answer)) {
-        // Multiple choice — join as comma-separated
         payload.push({ questionId, answer: answer.join(',') });
       } else {
         payload.push({ questionId, answer: answer as string });

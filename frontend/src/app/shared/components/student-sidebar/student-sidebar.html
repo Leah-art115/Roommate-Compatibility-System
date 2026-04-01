@@ -1,16 +1,55 @@
-<nav class="flex-1 px-3 py-4 space-y-1">
-  @for (item of navItems; track item.route) {
-    <button
-      (click)="navigate(item.route)"
-      class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer w-full text-left"
-      [ngClass]="isActive(item.route)
-        ? 'bg-white/15 text-white'
-        : 'text-white/60 hover:bg-white/10 hover:text-white'"
-    >
-      <i class="fa-solid {{ item.icon }} w-4 text-center"></i>
+<div class="flex flex-col h-full" style="background-color: var(--color-neutral-primary)">
+
+  <!-- Logo -->
+  <div class="px-6 py-6 border-b border-white/10">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center">
+        <i class="fa-solid fa-house-user text-white text-sm"></i>
+      </div>
       @if (!collapsed) {
-        <span>{{ item.label }}</span>
+        <div>
+          <p class="text-white font-bold text-sm leading-none">Roommate</p>
+          <p class="text-white/50 text-xs">System</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Nav Items -->
+  <nav class="flex-1 px-3 py-4 space-y-1">
+    @for (item of navItems; track item.route) {
+      <button
+        (click)="navigate(item.route)"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer w-full text-left"
+        [ngClass]="isActive(item.route)
+          ? 'bg-white/15 text-white'
+          : 'text-white/60 hover:bg-white/10 hover:text-white'"
+      >
+        <i class="fa-solid {{ item.icon }} w-4 text-center"></i>
+        @if (!collapsed) {
+          <span>{{ item.label }}</span>
+        }
+      </button>
+    }
+  </nav>
+
+  <!-- User + Logout -->
+  <div class="px-3 py-4 border-t border-white/10">
+    @if (!collapsed) {
+      <div class="px-3 py-2 mb-2">
+        <p class="text-white text-sm font-medium truncate">{{ user?.email }}</p>
+        <p class="text-white/50 text-xs">Student</p>
+      </div>
+    }
+    <button
+      (click)="logout()"
+      class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:bg-white/10 hover:text-white transition-all w-full"
+    >
+      <i class="fa-solid fa-arrow-right-from-bracket w-4 text-center"></i>
+      @if (!collapsed) {
+        <span>Logout</span>
       }
     </button>
-  }
-</nav>
+  </div>
+
+</div>

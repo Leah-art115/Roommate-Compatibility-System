@@ -21,15 +21,13 @@ export class QuestionsComponent implements OnInit {
   showModal = signal(false);
   modalLoading = signal(false);
 
-  setType(type: string) {
-  this.form.type = type as 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE' | 'SCALE';
-}
-
   form = {
     text: '',
     type: 'SINGLE_CHOICE' as 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE' | 'SCALE',
     options: ['', ''],
     order: 0,
+    scaleMin: '',
+    scaleMax: '',
   };
 
   questionTypes = [
@@ -57,12 +55,23 @@ export class QuestionsComponent implements OnInit {
   }
 
   openModal() {
-    this.form = { text: '', type: 'SINGLE_CHOICE', options: ['', ''], order: this.questions().length + 1 };
+    this.form = {
+      text: '',
+      type: 'SINGLE_CHOICE',
+      options: ['', ''],
+      order: this.questions().length + 1,
+      scaleMin: '',
+      scaleMax: '',
+    };
     this.showModal.set(true);
   }
 
   closeModal() {
     this.showModal.set(false);
+  }
+
+  setType(type: string) {
+    this.form.type = type as 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE' | 'SCALE';
   }
 
   addOption() {
@@ -85,6 +94,11 @@ export class QuestionsComponent implements OnInit {
       return;
     }
 
+    if (this.form.type === 'SCALE' && (!this.form.scaleMin.trim() || !this.form.scaleMax.trim())) {
+      this.notificationService.show('Please enter labels for both ends of the scale', 'warning');
+      return;
+    }
+
     if (this.form.type !== 'SCALE' && this.form.options.some(o => !o.trim())) {
       this.notificationService.show('Please fill in all options', 'warning');
       return;
@@ -95,6 +109,8 @@ export class QuestionsComponent implements OnInit {
       type: this.form.type,
       options: this.form.type === 'SCALE' ? [] : this.form.options.filter(o => o.trim()),
       order: this.form.order,
+      scaleMin: this.form.type === 'SCALE' ? this.form.scaleMin : undefined,
+      scaleMax: this.form.type === 'SCALE' ? this.form.scaleMax : undefined,
     };
 
     this.modalLoading.set(true);

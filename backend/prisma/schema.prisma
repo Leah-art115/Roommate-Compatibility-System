@@ -104,6 +104,8 @@ model Question {
   text           String
   type           QuestionType
   options        String[]
+  scaleMin       String?      // ← e.g. "Never" or "Early bird"
+  scaleMax       String?      // ← e.g. "Always" or "Night owl"
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
   order          Int          @default(0)

@@ -1,6 +1,5 @@
 <div class="max-w-2xl mx-auto">
 
-  <!-- Header -->
   <div class="mb-8">
     <h1 class="text-2xl font-bold" style="color: var(--color-text-primary)">Compatibility Quiz</h1>
     <p class="text-sm mt-1" style="color: var(--color-text-secondary)">
@@ -42,7 +41,9 @@
         <span class="text-xs font-medium" style="color: var(--color-text-secondary)">
           Question {{ currentIndex() + 1 }} of {{ questions().length }}
         </span>
-        <span class="text-xs font-semibold" style="color: var(--color-neutral-primary)">{{ progress }}%</span>
+        <span class="text-xs font-semibold" style="color: var(--color-neutral-primary)">
+          {{ progress }}% complete
+        </span>
       </div>
       <div class="w-full bg-gray-100 rounded-full h-2">
         <div class="h-2 rounded-full transition-all duration-500"
@@ -55,7 +56,6 @@
     <!-- Question card -->
     <div class="bg-white rounded-2xl border p-6 mb-4" style="border-color: var(--color-border)">
 
-      <!-- Question text -->
       <div class="mb-6">
         <span class="inline-block px-2 py-1 rounded-lg text-xs font-medium mb-3"
           style="background-color: var(--color-neutral-accent); color: var(--color-neutral-secondary)">
@@ -121,7 +121,7 @@
       <!-- SCALE -->
       @if (currentQuestion.type === 'SCALE') {
         <div>
-          <div class="flex justify-between mb-6">
+          <div class="flex justify-between mb-2">
             @for (val of [1,2,3,4,5]; track val) {
               <button
                 (click)="selectScale(val)"
@@ -133,12 +133,20 @@
                   [style.color]="scaleValue === val ? 'white' : 'var(--color-text-secondary)'">
                   {{ val }}
                 </div>
-                <span class="text-xs text-center hidden md:block" style="color: var(--color-text-secondary)">
-                  {{ scaleLabels[val] }}
-                </span>
               </button>
             }
           </div>
+
+          <!-- Scale endpoints -->
+          <div class="flex justify-between px-1 mb-3">
+            <span class="text-xs font-medium" style="color: var(--color-text-secondary)">
+              {{ currentQuestion.scaleMin || 'Strongly Disagree' }}
+            </span>
+            <span class="text-xs font-medium" style="color: var(--color-text-secondary)">
+              {{ currentQuestion.scaleMax || 'Strongly Agree' }}
+            </span>
+          </div>
+
           @if (scaleValue > 0) {
             <p class="text-center text-sm font-medium" style="color: var(--color-neutral-primary)">
               {{ scaleLabels[scaleValue] }}

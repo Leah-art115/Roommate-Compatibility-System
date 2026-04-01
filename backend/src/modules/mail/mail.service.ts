@@ -1,23 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 @Injectable()
 export class MailService {
-  private transporter;
-
-  constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASSWORD,
-      },
-    });
-  }
+  private resend = new Resend(process.env.RESEND_API_KEY);
 
   async sendInviteEmail(
     to: string,
@@ -454,8 +440,8 @@ export class MailService {
     `;
 
     try {
-      await this.transporter.sendMail({
-        from: `${organizationName} <${process.env.MAIL_USER}>`,
+      await this.resend.emails.send({
+        from: 'Roommate System <onboarding@resend.dev>',
         to,
         subject: `${organizationName} — Your Hostel Booking Invitation`,
         html,

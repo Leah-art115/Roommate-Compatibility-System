@@ -9,13 +9,14 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class QuestionsService {
   constructor(private prisma: PrismaService) {}
 
-  // Org admin creates a question
   async createQuestion(
     organizationId: string,
     text: string,
     type: 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE' | 'SCALE',
     options: string[],
     order?: number,
+    scaleMin?: string,
+    scaleMax?: string,
   ) {
     if (!text || !type) {
       throw new BadRequestException('Question text and type are required');
@@ -25,6 +26,12 @@ export class QuestionsService {
       throw new BadRequestException('Questions must have at least 2 options');
     }
 
+    if (type === 'SCALE' && (!scaleMin || !scaleMax)) {
+      throw new BadRequestException(
+        'Scale questions must have min and max labels',
+      );
+    }
+
     const question = await this.prisma.question.create({
       data: {
         text,
@@ -32,6 +39,8 @@ export class QuestionsService {
         options,
         organizationId,
         order: order ?? 0,
+        scaleMin: type === 'SCALE' ? scaleMin : null,
+        scaleMax: type === 'SCALE' ? scaleMax : null,
       },
     });
 
@@ -41,7 +50,6 @@ export class QuestionsService {
     };
   }
 
-  // Get all questions for an organization (for org admin)
   async getQuestions(organizationId: string) {
     return this.prisma.question.findMany({
       where: { organizationId },
@@ -49,7 +57,6 @@ export class QuestionsService {
     });
   }
 
-  // Get all questions for a student (same as above but cleaner response)
   async getQuestionsForStudent(organizationId: string) {
     const questions = await this.prisma.question.findMany({
       where: { organizationId },
@@ -63,7 +70,6 @@ export class QuestionsService {
     return questions;
   }
 
-  // Update a question
   async updateQuestion(
     questionId: string,
     organizationId: string,
@@ -98,7 +104,6 @@ export class QuestionsService {
     };
   }
 
-  // Delete a question
   async deleteQuestion(questionId: string, organizationId: string) {
     const question = await this.prisma.question.findUnique({
       where: { id: questionId },
@@ -116,18 +121,14 @@ export class QuestionsService {
       where: { id: questionId },
     });
 
-    return {
-      message: 'Question deleted successfully',
-    };
+    return { message: 'Question deleted successfully' };
   }
 
-  // Student submits answers
   async submitAnswers(
     userId: string,
     organizationId: string,
     answers: { questionId: string; answer: string }[],
   ) {
-    // Check all questions belong to the organization
     const questions = await this.prisma.question.findMany({
       where: { organizationId },
     });
@@ -142,7 +143,6 @@ export class QuestionsService {
       }
     }
 
-    // Check student hasn't already answered
     const existing = await this.prisma.answer.findFirst({
       where: { userId },
     });
@@ -151,7 +151,6 @@ export class QuestionsService {
       throw new BadRequestException('You have already submitted your answers');
     }
 
-    // Save all answers
     await this.prisma.answer.createMany({
       data: answers.map((ans) => ({
         userId,
@@ -160,18 +159,14 @@ export class QuestionsService {
       })),
     });
 
-    // Update student booking status to QUIZ_DONE
     await this.prisma.user.update({
       where: { id: userId },
       data: { bookingStatus: 'QUIZ_DONE' },
     });
 
-    return {
-      message: 'Answers submitted successfully',
-    };
+    return { message: 'Answers submitted successfully' };
   }
 
-  // Get a student's answers
   async getStudentAnswers(userId: string) {
     return this.prisma.answer.findMany({
       where: { userId },

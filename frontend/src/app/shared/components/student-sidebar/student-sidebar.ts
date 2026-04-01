@@ -10,6 +10,7 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './student-sidebar.html',
 })
 export class StudentSidebarComponent {
+  
   @Input() collapsed = false;
   private authService = inject(AuthService);
   private router = inject(Router);

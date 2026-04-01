@@ -49,9 +49,9 @@ export class OrgAdminService {
     return this.http.get<any[]>(`${this.api}/questions/admin`);
   }
 
-  createQuestion(data: { text: string; type: string; options: string[]; order?: number }) {
-    return this.http.post(`${this.api}/questions`, data);
-  }
+  createQuestion(data: { text: string; type: string; options: string[]; order?: number; scaleMin?: string; scaleMax?: string }) {
+  return this.http.post(`${this.api}/questions`, data);
+}
 
   deleteQuestion(id: string) {
     return this.http.delete(`${this.api}/questions/${id}`);
