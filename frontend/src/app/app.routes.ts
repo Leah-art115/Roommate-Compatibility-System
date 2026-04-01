@@ -101,5 +101,44 @@ export const routes: Routes = [
     ],
   },
 
+  // ── Super Admin ──
+{
+  path: 'super-admin',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./pages/super-admin/dashboard/super-admin-dashboard').then(
+      (m) => m.SuperAdminDashboardComponent,
+    ),
+  children: [
+    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    {
+      path: 'dashboard',
+      loadComponent: () =>
+        import('./pages/super-admin/dashboard/super-admin-overview').then(
+          (m) => m.SuperAdminOverviewComponent,
+        ),
+    },
+    {
+      path: 'organizations',
+      loadComponent: () =>
+        import('./pages/super-admin/organizations/organizations').then(
+          (m) => m.OrganizationsComponent,
+        ),
+    },
+    {
+      path: 'org-admins',
+      loadComponent: () =>
+        import('./pages/super-admin/org-admins/org-admins').then(
+          (m) => m.OrgAdminsComponent,
+        ),
+    },
+    {
+      path: 'profile',
+      loadComponent: () =>
+        import('./pages/profile/profile').then((m) => m.ProfileComponent),
+    },
+  ],
+},
+
   { path: '**', redirectTo: 'login' },
 ];

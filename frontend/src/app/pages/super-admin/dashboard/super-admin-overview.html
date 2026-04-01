@@ -1,0 +1,92 @@
+<div>
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold" style="color: var(--color-text-primary)">System Overview</h1>
+    <p class="text-sm mt-1" style="color: var(--color-text-secondary)">
+      Global stats across all organizations
+    </p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <i class="fa-solid fa-spinner fa-spin text-3xl" style="color: var(--color-neutral-primary)"></i>
+    </div>
+  } @else if (stats()) {
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+
+  <div class="bg-white rounded-2xl p-5 shadow-sm border" style="border-color: var(--color-border)">
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+      style="background-color: #eff6ff; color: #1d4ed8">
+      <i class="fa-solid fa-building text-sm"></i>
+    </div>
+    <p class="text-3xl font-bold" style="color: var(--color-text-primary)">{{ stats().totalOrgs }}</p>
+    <p class="text-sm mt-1" style="color: var(--color-text-secondary)">Organizations</p>
+  </div>
+
+  <div class="bg-white rounded-2xl p-5 shadow-sm border" style="border-color: var(--color-border)">
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+      style="background-color: #f0fdf4; color: #16a34a">
+      <i class="fa-solid fa-user-tie text-sm"></i>
+    </div>
+    <p class="text-3xl font-bold" style="color: var(--color-text-primary)">{{ stats().totalAdmins }}</p>
+    <p class="text-sm mt-1" style="color: var(--color-text-secondary)">Org Admins</p>
+  </div>
+
+  <div class="bg-white rounded-2xl p-5 shadow-sm border" style="border-color: var(--color-border)">
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+      style="background-color: #fef9c3; color: #ca8a04">
+      <i class="fa-solid fa-users text-sm"></i>
+    </div>
+    <p class="text-3xl font-bold" style="color: var(--color-text-primary)">{{ stats().totalUsers }}</p>
+    <p class="text-sm mt-1" style="color: var(--color-text-secondary)">Active Users</p>
+  </div>
+
+  <div class="bg-white rounded-2xl p-5 shadow-sm border" style="border-color: var(--color-border)">
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+      style="background-color: #f5f3ff; color: #7c3aed">
+      <i class="fa-solid fa-door-open text-sm"></i>
+    </div>
+    <p class="text-3xl font-bold" style="color: var(--color-text-primary)">{{ stats().totalRooms }}</p>
+    <p class="text-sm mt-1" style="color: var(--color-text-secondary)">Total Rooms</p>
+  </div>
+
+</div>
+
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <a routerLink="/super-admin/organizations"
+        class="bg-white rounded-2xl border p-6 shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center gap-4"
+        style="border-color: var(--color-border)">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center"
+          style="background-color: #eff6ff; color: #1d4ed8">
+          <i class="fa-solid fa-building text-lg"></i>
+        </div>
+        <div>
+          <p class="font-semibold" style="color: var(--color-text-primary)">Manage Organizations</p>
+          <p class="text-sm mt-0.5" style="color: var(--color-text-secondary)">
+            {{ stats().totalOrgs }} organization(s) registered
+          </p>
+        </div>
+        <i class="fa-solid fa-arrow-right ml-auto" style="color: var(--color-text-secondary)"></i>
+      </a>
+
+      <a routerLink="/super-admin/org-admins"
+        class="bg-white rounded-2xl border p-6 shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center gap-4"
+        style="border-color: var(--color-border)">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center"
+          style="background-color: #f0fdf4; color: #16a34a">
+          <i class="fa-solid fa-user-tie text-lg"></i>
+        </div>
+        <div>
+          <p class="font-semibold" style="color: var(--color-text-primary)">Manage Org Admins</p>
+          <p class="text-sm mt-0.5" style="color: var(--color-text-secondary)">
+            {{ stats().totalAdmins }} admin(s) registered
+          </p>
+        </div>
+        <i class="fa-solid fa-arrow-right ml-auto" style="color: var(--color-text-secondary)"></i>
+      </a>
+    </div>
+
+  }
+</div>

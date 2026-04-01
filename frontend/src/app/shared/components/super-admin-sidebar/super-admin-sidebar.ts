@@ -4,12 +4,12 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-student-sidebar',
+  selector: 'app-super-admin-sidebar',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './student-sidebar.html',
+  templateUrl: './super-admin-sidebar.html',
 })
-export class StudentSidebarComponent {
+export class SuperAdminSidebarComponent {
   @Input() collapsed = false;
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -17,12 +17,10 @@ export class StudentSidebarComponent {
   user = this.authService.getUser();
 
   navItems = [
-    { label: 'Dashboard', icon: 'fa-gauge', route: '/student/dashboard' },
-    { label: 'My Quiz', icon: 'fa-clipboard-question', route: '/student/quiz' },
-    { label: 'Browse Rooms', icon: 'fa-door-open', route: '/student/rooms' },
-    { label: 'My Room', icon: 'fa-house', route: '/student/my-room' },
-    { label: 'Complaints', icon: 'fa-triangle-exclamation', route: '/student/complaints' },
-    { label: 'Profile', icon: 'fa-user', route: '/student/profile' },
+    { label: 'Dashboard', icon: 'fa-gauge', route: '/super-admin/dashboard' },
+    { label: 'Organizations', icon: 'fa-building', route: '/super-admin/organizations' },
+    { label: 'Org Admins', icon: 'fa-user-tie', route: '/super-admin/org-admins' },
+    { label: 'Profile', icon: 'fa-user', route: '/super-admin/profile' },
   ];
 
   isActive(route: string): boolean {

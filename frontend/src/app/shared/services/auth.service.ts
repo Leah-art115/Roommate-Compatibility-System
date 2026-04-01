@@ -75,15 +75,16 @@ changePassword(currentPassword: string, newPassword: string) {
     this.router.navigate(['/login']);
   }
 
+
   redirectAfterLogin(): void {
-    const user = this.getUser();
-    if (!user) return;
-    if (user.role === 'ORG_ADMIN') {
-      this.router.navigate(['/admin/dashboard']);
-    } else if (user.role === 'SUPER_ADMIN') {
-      this.router.navigate(['/super-admin/dashboard']);
-    } else {
-      this.router.navigate(['/student/dashboard']);
-    }
+  const user = this.getUser();
+  if (!user) return;
+  if (user.role === 'SUPER_ADMIN') {
+    this.router.navigate(['/super-admin/dashboard']);
+  } else if (user.role === 'ORG_ADMIN') {
+    this.router.navigate(['/admin/dashboard']);
+  } else {
+    this.router.navigate(['/student/dashboard']);
   }
+}
 }

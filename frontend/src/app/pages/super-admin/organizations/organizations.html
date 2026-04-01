@@ -1,0 +1,180 @@
+<div>
+
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold" style="color: var(--color-text-primary)">Organizations</h1>
+      <p class="text-sm mt-1" style="color: var(--color-text-secondary)">
+        Manage all organizations on the platform
+      </p>
+    </div>
+    <button
+      (click)="openModal()"
+      class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white"
+      style="background-color: var(--color-neutral-primary)">
+      <i class="fa-solid fa-plus"></i>
+      Add Organization
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <i class="fa-solid fa-spinner fa-spin text-3xl" style="color: var(--color-neutral-primary)"></i>
+    </div>
+  } @else if (organizations().length === 0) {
+    <div class="bg-white rounded-2xl p-12 text-center border" style="border-color: var(--color-border)">
+      <i class="fa-solid fa-building text-4xl mb-4" style="color: var(--color-border)"></i>
+      <p class="font-medium" style="color: var(--color-text-primary)">No organizations yet</p>
+      <p class="text-sm mt-1" style="color: var(--color-text-secondary)">Add an organization to get started</p>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (org of organizations(); track org.id) {
+        <div class="bg-white rounded-2xl border shadow-sm overflow-hidden" style="border-color: var(--color-border)">
+
+          <!-- Header -->
+          <div class="px-5 py-4 border-b flex items-center justify-between" style="border-color: var(--color-border)">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+                [style.background-color]="typeColor(org.type)"
+                [style.color]="typeTextColor(org.type)">
+                <i class="fa-solid text-sm" [ngClass]="typeIcon(org.type)"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-sm" style="color: var(--color-text-primary)">{{ org.name }}</p>
+                <span class="text-xs px-2 py-0.5 rounded-full font-medium"
+                  [style.background-color]="typeColor(org.type)"
+                  [style.color]="typeTextColor(org.type)">
+                  {{ typeLabel(org.type) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="px-5 py-4 grid grid-cols-3 gap-3">
+            <div class="text-center">
+              <p class="text-lg font-bold" style="color: var(--color-text-primary)">{{ org.totalUsers }}</p>
+              <p class="text-xs" style="color: var(--color-text-secondary)">Users</p>
+            </div>
+            <div class="text-center">
+              <p class="text-lg font-bold" style="color: var(--color-text-primary)">{{ org.totalRooms }}</p>
+              <p class="text-xs" style="color: var(--color-text-secondary)">Rooms</p>
+            </div>
+            <div class="text-center">
+              <p class="text-lg font-bold" style="color: var(--color-text-primary)">{{ org.totalInvites }}</p>
+              <p class="text-xs" style="color: var(--color-text-secondary)">Invites</p>
+            </div>
+          </div>
+
+          <!-- Admins -->
+          @if (org.admins && org.admins.length > 0) {
+            <div class="px-5 pb-4">
+              <p class="text-xs font-medium mb-2" style="color: var(--color-text-secondary)">Admin(s)</p>
+              @for (admin of org.admins; track admin.id) {
+                <div class="flex items-center gap-2 mb-1">
+                  <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold"
+                    style="color: var(--color-text-secondary)">
+                    {{ admin.name?.charAt(0)?.toUpperCase() }}
+                  </div>
+                  <span class="text-xs" style="color: var(--color-text-primary)">{{ admin.name }}</span>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Actions -->
+          <div class="px-5 pb-4 flex justify-between items-center">
+            <p class="text-xs" style="color: var(--color-text-secondary)">
+              {{ org.createdAt | date:'mediumDate' }}
+            </p>
+            <button
+              (click)="deleteOrganization(org.id)"
+              [disabled]="deleting() === org.id || org.totalUsers > 0"
+              class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-all disabled:opacity-40"
+            >
+              @if (deleting() === org.id) {
+                <i class="fa-solid fa-spinner fa-spin"></i>
+              } @else {
+                <i class="fa-solid fa-trash"></i>
+              }
+              Delete
+            </button>
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
+</div>
+
+<!-- Add Organization Modal -->
+@if (showModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
+    style="background-color: rgba(0,0,0,0.5)"
+    (click)="closeModal()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6"
+      (click)="$event.stopPropagation()">
+
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-bold" style="color: var(--color-text-primary)">Add Organization</h2>
+        <button (click)="closeModal()" style="color: var(--color-text-secondary)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">
+          Organization Name
+        </label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
+            <i class="fa-solid fa-building text-sm"></i>
+          </span>
+          <input
+            type="text"
+            [(ngModel)]="form.name"
+            placeholder="e.g. Nairobi University"
+            class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none"
+            style="border-color: var(--color-border); color: var(--color-text-primary)" />
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2" style="color: var(--color-text-primary)">Type</label>
+        <div class="grid grid-cols-3 gap-2">
+          @for (type of orgTypes; track type.key) {
+            <button
+              (click)="setType(type.key)"
+              class="flex flex-col items-center gap-2 py-3 rounded-xl border text-xs font-medium transition-all"
+              [style.background-color]="form.type === type.key ? typeColor(type.key) : 'white'"
+              [style.border-color]="form.type === type.key ? typeTextColor(type.key) : 'var(--color-border)'"
+              [style.color]="form.type === type.key ? typeTextColor(type.key) : 'var(--color-text-secondary)'">
+              <i class="fa-solid text-base" [ngClass]="type.icon"></i>
+              {{ type.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button (click)="closeModal()"
+          class="flex-1 py-3 rounded-xl text-sm font-medium border"
+          style="border-color: var(--color-border); color: var(--color-text-secondary)">
+          Cancel
+        </button>
+        <button (click)="createOrganization()" [disabled]="modalLoading()"
+          class="flex-1 py-3 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50"
+          style="background-color: var(--color-neutral-primary)">
+          @if (modalLoading()) {
+            <i class="fa-solid fa-spinner fa-spin"></i>
+          } @else {
+            <i class="fa-solid fa-plus"></i>
+          }
+          Create
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
