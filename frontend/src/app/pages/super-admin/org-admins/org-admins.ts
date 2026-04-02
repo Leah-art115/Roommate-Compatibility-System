@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { SuperAdminService } from '../../../shared/services/super-admin.service';
 import { NotificationService } from '../../../shared/components/notification/notification.service';
 
@@ -13,12 +14,14 @@ import { NotificationService } from '../../../shared/components/notification/not
 export class OrgAdminsComponent implements OnInit {
   private superAdminService = inject(SuperAdminService);
   private notificationService = inject(NotificationService);
+  private route = inject(ActivatedRoute);
 
   admins = signal<any[]>([]);
   organizations = signal<any[]>([]);
   loading = signal(true);
   deleting = signal<string | null>(null);
 
+  // Add admin modal
   showModal = signal(false);
   modalLoading = signal(false);
   showPassword = signal(false);
@@ -30,8 +33,24 @@ export class OrgAdminsComponent implements OnInit {
     temporaryPassword: '',
   };
 
+  // Delete confirmation modal
+  showDeleteModal = signal(false);
+  adminToDelete = signal<{ id: string; name: string; orgName: string } | null>(null);
+
   ngOnInit() {
     this.loadData();
+    // If arriving from the organizations page shortcut, auto-open modal with org pre-selected
+    this.route.queryParams.subscribe(params => {
+      if (params['orgId']) {
+        // Wait for organizations to load first
+        const check = setInterval(() => {
+          if (this.organizations().length > 0) {
+            clearInterval(check);
+            this.openModal(params['orgId']);
+          }
+        }, 100);
+      }
+    });
   }
 
   loadData() {
@@ -53,8 +72,14 @@ export class OrgAdminsComponent implements OnInit {
     });
   }
 
-  openModal() {
-    this.form = { name: '', email: '', organizationId: '', temporaryPassword: '' };
+  openModal(preselectedOrgId?: string) {
+    this.form = {
+      name: '',
+      email: '',
+      organizationId: preselectedOrgId ?? '',
+      temporaryPassword: '',
+    };
+    this.showPassword.set(false);
     this.showModal.set(true);
   }
 
@@ -71,7 +96,7 @@ export class OrgAdminsComponent implements OnInit {
     this.modalLoading.set(true);
     this.superAdminService.createOrgAdmin(this.form).subscribe({
       next: () => {
-        this.notificationService.show('Org admin created successfully', 'success');
+        this.notificationService.show('Org admin created and welcome email sent', 'success');
         this.closeModal();
         this.loadData();
         this.modalLoading.set(false);
@@ -83,17 +108,35 @@ export class OrgAdminsComponent implements OnInit {
     });
   }
 
-  deleteAdmin(id: string) {
-    this.deleting.set(id);
-    this.superAdminService.deleteOrgAdmin(id).subscribe({
+  // Delete confirmation
+  confirmDelete(id: string, name: string, orgName: string) {
+    this.adminToDelete.set({ id, name, orgName });
+    this.showDeleteModal.set(true);
+  }
+
+  cancelDelete() {
+    this.adminToDelete.set(null);
+    this.showDeleteModal.set(false);
+  }
+
+  deleteAdmin() {
+    const target = this.adminToDelete();
+    if (!target) return;
+
+    this.deleting.set(target.id);
+    this.showDeleteModal.set(false);
+
+    this.superAdminService.deleteOrgAdmin(target.id).subscribe({
       next: () => {
         this.notificationService.show('Admin deleted', 'success');
         this.deleting.set(null);
+        this.adminToDelete.set(null);
         this.loadData();
       },
       error: (err) => {
         this.notificationService.show(err?.error?.message || 'Failed to delete admin', 'error');
         this.deleting.set(null);
+        this.adminToDelete.set(null);
       },
     });
   }

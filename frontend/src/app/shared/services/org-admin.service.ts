@@ -50,8 +50,12 @@ export class OrgAdminService {
   }
 
   createQuestion(data: { text: string; type: string; options: string[]; order?: number; scaleMin?: string; scaleMax?: string }) {
-  return this.http.post(`${this.api}/questions`, data);
-}
+    return this.http.post(`${this.api}/questions`, data);
+  }
+
+  updateQuestion(id: string, data: { text?: string; options?: string[]; order?: number; scaleMin?: string; scaleMax?: string }) {
+    return this.http.put(`${this.api}/questions/${id}`, data);
+  }
 
   deleteQuestion(id: string) {
     return this.http.delete(`${this.api}/questions/${id}`);

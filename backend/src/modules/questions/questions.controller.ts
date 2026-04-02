@@ -34,6 +34,8 @@ export class QuestionsController {
       type: 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE' | 'SCALE';
       options: string[];
       order?: number;
+      scaleMin?: string;
+      scaleMax?: string;
     },
   ) {
     return this.questionsService.createQuestion(
@@ -42,6 +44,8 @@ export class QuestionsController {
       body.type,
       body.options,
       body.order,
+      body.scaleMin,
+      body.scaleMax,
     );
   }
 

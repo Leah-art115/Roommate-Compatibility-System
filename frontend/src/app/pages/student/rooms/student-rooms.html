@@ -7,28 +7,63 @@
     </p>
   </div>
 
+  <!-- Filters -->
+  <div class="flex items-center gap-2 mb-6">
+    <button
+      (click)="setFilter('ALL')"
+      class="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+      [ngClass]="filter() === 'ALL' ? 'text-white' : 'bg-white border'"
+      [style.background-color]="filter() === 'ALL' ? 'var(--color-neutral-primary)' : ''"
+      [style.border-color]="filter() !== 'ALL' ? 'var(--color-border)' : ''"
+      [style.color]="filter() !== 'ALL' ? 'var(--color-text-secondary)' : ''">
+      All Rooms
+    </button>
+    <button
+      (click)="setFilter('RECOMMENDED')"
+      class="px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2"
+      [ngClass]="filter() === 'RECOMMENDED' ? 'text-white' : 'bg-white border'"
+      [style.background-color]="filter() === 'RECOMMENDED' ? 'var(--color-neutral-primary)' : ''"
+      [style.border-color]="filter() !== 'RECOMMENDED' ? 'var(--color-border)' : ''"
+      [style.color]="filter() !== 'RECOMMENDED' ? 'var(--color-text-secondary)' : ''">
+      <i class="fa-solid fa-star text-xs"></i>
+      Recommended
+    </button>
+  </div>
+
   @if (loading()) {
     <div class="flex items-center justify-center py-20">
       <i class="fa-solid fa-spinner fa-spin text-3xl" style="color: var(--color-neutral-primary)"></i>
     </div>
-  } @else if (rooms().length === 0) {
+  } @else if (filteredRooms.length === 0) {
     <div class="bg-white rounded-2xl border p-12 text-center" style="border-color: var(--color-border)">
       <i class="fa-solid fa-door-open text-4xl mb-4" style="color: var(--color-border)"></i>
       <p class="font-medium" style="color: var(--color-text-primary)">No available rooms</p>
-      <p class="text-sm mt-1" style="color: var(--color-text-secondary)">All rooms are currently full or none have been created yet.</p>
+      <p class="text-sm mt-1" style="color: var(--color-text-secondary)">
+        {{ filter() === 'RECOMMENDED' ? 'No recommended rooms found. Try viewing all rooms.' : 'All rooms are currently full or none have been created yet.' }}
+      </p>
     </div>
   } @else {
     <div class="space-y-4">
-      @for (room of rooms(); track room.id) {
-        <div class="bg-white rounded-2xl border shadow-sm overflow-hidden" style="border-color: var(--color-border)">
+      @for (room of filteredRooms; track room.id) {
+        <div class="bg-white rounded-2xl border shadow-sm overflow-hidden"
+          [style.border-color]="isRecommended(room) ? 'var(--color-success)' : 'var(--color-border)'">
 
-          <!-- Room Header (always visible) -->
+          <!-- Recommended Badge -->
+          @if (isRecommended(room)) {
+            <div class="px-5 pt-3 pb-0 flex items-center gap-2">
+              <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700">
+                <i class="fa-solid fa-star text-xs"></i>
+                Recommended
+              </span>
+            </div>
+          }
+
+          <!-- Room Header -->
           <div
             class="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
             (click)="toggleRoom(room.id)">
 
             <div class="flex items-center gap-4">
-              <!-- Room number -->
               <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-sm"
                 style="background-color: var(--color-neutral-accent); color: var(--color-neutral-primary)">
                 {{ room.roomNumber }}
@@ -47,7 +82,6 @@
             </div>
 
             <div class="flex items-center gap-3">
-              <!-- Compatibility badge -->
               @if (!room.isEmpty && room.overallCompatibility !== null) {
                 <div class="px-3 py-1.5 rounded-xl text-sm font-bold"
                   [style.background-color]="compatibilityBg(room.overallCompatibility)"
@@ -78,15 +112,12 @@
                   </p>
                 </div>
               } @else {
-                <!-- Roommates -->
                 <p class="text-xs font-semibold mb-3 uppercase tracking-wide" style="color: var(--color-text-secondary)">
                   Current Occupants
                 </p>
                 <div class="space-y-3 mb-5">
                   @for (occupant of room.occupants; track occupant.id) {
                     <div class="rounded-xl border overflow-hidden" style="border-color: var(--color-border)">
-
-                      <!-- Occupant row -->
                       <div
                         class="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
                         (click)="toggleRoommate(occupant.id)">
@@ -109,7 +140,6 @@
                         </div>
                       </div>
 
-                      <!-- Answer comparison breakdown -->
                       @if (expandedRoomate() === occupant.id) {
                         <div class="border-t px-4 py-3 space-y-3" style="border-color: var(--color-border); background-color: var(--color-background)">
                           @for (comparison of occupant.answerComparison; track comparison.questionId) {
@@ -118,7 +148,6 @@
                                 {{ comparison.questionText }}
                               </p>
                               <div class="flex items-start gap-3">
-                                <!-- My answer -->
                                 <div class="flex-1">
                                   <p class="text-xs mb-1" style="color: var(--color-text-secondary)">You</p>
                                   <span class="inline-block px-2 py-1 rounded-lg text-xs font-medium"
@@ -126,7 +155,6 @@
                                     {{ comparison.myAnswer ?? '—' }}
                                   </span>
                                 </div>
-                                <!-- Match indicator -->
                                 <div class="flex items-center justify-center pt-4">
                                   @if (comparison.match) {
                                     <i class="fa-solid fa-equals text-xs" style="color: var(--color-success)"></i>
@@ -134,7 +162,6 @@
                                     <i class="fa-solid fa-not-equal text-xs" style="color: var(--color-error)"></i>
                                   }
                                 </div>
-                                <!-- Their answer -->
                                 <div class="flex-1">
                                   <p class="text-xs mb-1" style="color: var(--color-text-secondary)">{{ occupant.name }}</p>
                                   <span class="inline-block px-2 py-1 rounded-lg text-xs font-medium"
@@ -148,7 +175,6 @@
                           }
                         </div>
                       }
-
                     </div>
                   }
                 </div>
@@ -174,7 +200,45 @@
       }
     </div>
   }
+
 </div>
+
+<!-- Low Compatibility Warning -->
+@if (showLowCompatWarning()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
+    style="background-color: rgba(0,0,0,0.5)"
+    (click)="dismissWarning()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6"
+      (click)="$event.stopPropagation()">
+
+      <div class="flex items-center justify-center w-12 h-12 rounded-full bg-yellow-100 mx-auto mb-4">
+        <i class="fa-solid fa-triangle-exclamation text-yellow-600 text-xl"></i>
+      </div>
+
+      <h2 class="text-lg font-bold text-center mb-2" style="color: var(--color-text-primary)">
+        Low Compatibility
+      </h2>
+      <p class="text-sm text-center mb-6" style="color: var(--color-text-secondary)">
+        Your compatibility with the current occupants is below 50%. You may find it challenging to get along.
+        You can still book this room if you're willing to compromise.
+      </p>
+
+      <div class="flex gap-3">
+        <button (click)="dismissWarning()"
+          class="flex-1 py-3 rounded-xl text-sm font-medium border"
+          style="border-color: var(--color-border); color: var(--color-text-secondary)">
+          <i class="fa-solid fa-xmark mr-1"></i> Go Back
+        </button>
+        <button (click)="proceedDespiteWarning()"
+          class="flex-1 py-3 rounded-xl text-sm font-semibold text-white"
+          style="background-color: var(--color-warning)">
+          <i class="fa-solid fa-check mr-1"></i> Book Anyway
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
 
 <!-- Confirm Book Modal -->
 @if (showConfirm()) {

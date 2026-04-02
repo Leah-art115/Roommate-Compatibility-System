@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { SuperAdminService } from '../../../shared/services/super-admin.service';
 import { NotificationService } from '../../../shared/components/notification/notification.service';
 
@@ -13,6 +14,7 @@ import { NotificationService } from '../../../shared/components/notification/not
 export class OrganizationsComponent implements OnInit {
   private superAdminService = inject(SuperAdminService);
   private notificationService = inject(NotificationService);
+  private router = inject(Router);
 
   organizations = signal<any[]>([]);
   loading = signal(true);
@@ -21,6 +23,10 @@ export class OrganizationsComponent implements OnInit {
   showModal = signal(false);
   modalLoading = signal(false);
   form = { name: '', type: '' };
+
+  // Delete confirmation modal
+  showDeleteModal = signal(false);
+  orgToDelete = signal<{ id: string; name: string } | null>(null);
 
   orgTypes = [
     { key: 'SCHOOL', label: 'School', icon: 'fa-school' },
@@ -80,17 +86,42 @@ export class OrganizationsComponent implements OnInit {
     });
   }
 
-  deleteOrganization(id: string) {
-    this.deleting.set(id);
-    this.superAdminService.deleteOrganization(id).subscribe({
+  // Navigate to org admins page with the org pre-selected
+  addAdminForOrg(orgId: string) {
+    this.router.navigate(['/super-admin/org-admins'], {
+      queryParams: { orgId },
+    });
+  }
+
+  // Delete confirmation
+  confirmDelete(id: string, name: string) {
+    this.orgToDelete.set({ id, name });
+    this.showDeleteModal.set(true);
+  }
+
+  cancelDelete() {
+    this.orgToDelete.set(null);
+    this.showDeleteModal.set(false);
+  }
+
+  deleteOrganization() {
+    const target = this.orgToDelete();
+    if (!target) return;
+
+    this.deleting.set(target.id);
+    this.showDeleteModal.set(false);
+
+    this.superAdminService.deleteOrganization(target.id).subscribe({
       next: () => {
         this.notificationService.show('Organization deleted', 'success');
         this.deleting.set(null);
+        this.orgToDelete.set(null);
         this.loadOrganizations();
       },
       error: (err) => {
         this.notificationService.show(err?.error?.message || 'Failed to delete organization', 'error');
         this.deleting.set(null);
+        this.orgToDelete.set(null);
       },
     });
   }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   Injectable,
   BadRequestException,
@@ -5,10 +6,14 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class SuperAdminService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mailService: MailService,
+  ) {}
 
   // ── Organizations ──
 
@@ -104,9 +109,7 @@ export class SuperAdminService {
     const org = await this.prisma.organization.findUnique({
       where: { id },
       include: {
-        _count: {
-          select: { users: true },
-        },
+        _count: { select: { users: true } },
       },
     });
 
@@ -120,7 +123,6 @@ export class SuperAdminService {
       );
     }
 
-    // Delete related records first
     await this.prisma.invite.deleteMany({ where: { organizationId: id } });
     await this.prisma.question.deleteMany({ where: { organizationId: id } });
     await this.prisma.room.deleteMany({ where: { organizationId: id } });
@@ -164,6 +166,14 @@ export class SuperAdminService {
         organizationId,
       },
     });
+
+    // Send welcome email — non-blocking, failure won't affect the response
+    await this.mailService.sendAdminWelcomeEmail(
+      email,
+      name,
+      org.name,
+      temporaryPassword,
+    );
 
     return {
       message: 'Org admin created successfully',

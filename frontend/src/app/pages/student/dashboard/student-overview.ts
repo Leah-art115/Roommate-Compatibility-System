@@ -74,10 +74,10 @@ export class StudentOverviewComponent implements OnInit {
   }
 
   get currentStepIndex(): number {
-    if (this.bookingStatus() === 'NOT_STARTED') return 0;
-    if (this.bookingStatus() === 'QUIZ_DONE') return 1;
-    return 2;
-  }
+  if (this.bookingStatus() === 'NOT_STARTED') return 0;
+  if (this.bookingStatus() === 'QUIZ_DONE') return 1;
+  return 3; // beyond all steps so all show as completed
+}
 
   get pendingSwitchRequest(): any {
     return this.mySwitchRequests().find(r => r.status === 'PENDING');

@@ -8,7 +8,7 @@ import { NotificationService } from '../../../shared/components/notification/not
   selector: 'app-student-rooms',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './student-rooms.html',   // Must match the actual filename
+  templateUrl: './student-rooms.html',
 })
 export class StudentRoomsComponent implements OnInit {
   private studentService = inject(StudentService);
@@ -21,6 +21,10 @@ export class StudentRoomsComponent implements OnInit {
   expandedRoom = signal<string | null>(null);
   expandedRoomate = signal<string | null>(null);
   showConfirm = signal<string | null>(null);
+  showLowCompatWarning = signal(false);
+  pendingRoomId = signal<string | null>(null);
+
+  filter = signal<'ALL' | 'RECOMMENDED'>('ALL');
 
   ngOnInit() {
     this.loadRooms();
@@ -46,6 +50,25 @@ export class StudentRoomsComponent implements OnInit {
     });
   }
 
+  get filteredRooms(): any[] {
+    if (this.filter() === 'RECOMMENDED') {
+      return this.rooms().filter(r => r.isEmpty || (r.overallCompatibility !== null && r.overallCompatibility >= 50));
+    }
+    return this.rooms();
+  }
+
+  isRecommended(room: any): boolean {
+    return !room.isEmpty && room.overallCompatibility !== null && room.overallCompatibility >= 75;
+  }
+
+  isLowCompatibility(room: any): boolean {
+    return !room.isEmpty && room.overallCompatibility !== null && room.overallCompatibility < 50;
+  }
+
+  setFilter(f: 'ALL' | 'RECOMMENDED') {
+    this.filter.set(f);
+  }
+
   toggleRoom(id: string) {
     this.expandedRoom.set(this.expandedRoom() === id ? null : id);
     this.expandedRoomate.set(null);
@@ -56,7 +79,25 @@ export class StudentRoomsComponent implements OnInit {
   }
 
   confirmBook(roomId: string) {
+    const room = this.rooms().find(r => r.id === roomId);
+    if (room && this.isLowCompatibility(room)) {
+      this.pendingRoomId.set(roomId);
+      this.showLowCompatWarning.set(true);
+      return;
+    }
     this.showConfirm.set(roomId);
+  }
+
+  dismissWarning() {
+    this.showLowCompatWarning.set(false);
+    this.pendingRoomId.set(null);
+  }
+
+  proceedDespiteWarning() {
+    const roomId = this.pendingRoomId();
+    this.showLowCompatWarning.set(false);
+    this.pendingRoomId.set(null);
+    if (roomId) this.showConfirm.set(roomId);
   }
 
   cancelBook() {

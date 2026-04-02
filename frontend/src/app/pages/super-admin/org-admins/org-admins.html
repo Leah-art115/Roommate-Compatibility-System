@@ -31,20 +31,15 @@
       <table class="w-full">
         <thead>
           <tr style="border-bottom: 1px solid var(--color-border); background-color: var(--color-background)">
-            <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-              style="color: var(--color-text-secondary)">Admin</th>
-            <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-              style="color: var(--color-text-secondary)">Organization</th>
-            <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-              style="color: var(--color-text-secondary)">Joined</th>
-            <th class="text-right px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-              style="color: var(--color-text-secondary)">Actions</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wide" style="color: var(--color-text-secondary)">Admin</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wide" style="color: var(--color-text-secondary)">Organization</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wide" style="color: var(--color-text-secondary)">Joined</th>
+            <th class="text-right px-6 py-3 text-xs font-semibold uppercase tracking-wide" style="color: var(--color-text-secondary)">Actions</th>
           </tr>
         </thead>
         <tbody>
           @for (admin of admins(); track admin.id) {
-            <tr class="border-b last:border-0 hover:bg-gray-50 transition-colors"
-              style="border-color: var(--color-border)">
+            <tr class="border-b last:border-0 hover:bg-gray-50 transition-colors" style="border-color: var(--color-border)">
 
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
@@ -81,7 +76,7 @@
 
               <td class="px-6 py-4 text-right">
                 <button
-                  (click)="deleteAdmin(admin.id)"
+                  (click)="confirmDelete(admin.id, admin.name, admin.organization?.name || 'Unknown')"
                   [disabled]="deleting() === admin.id"
                   class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-all disabled:opacity-40 ml-auto"
                 >
@@ -103,7 +98,9 @@
 
 </div>
 
-<!-- Add Admin Modal -->
+<!-- ═══════════════════════════════════════════════
+     Add Admin Modal
+════════════════════════════════════════════════ -->
 @if (showModal()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
     style="background-color: rgba(0,0,0,0.5)"
@@ -118,75 +115,83 @@
         </button>
       </div>
 
-      <!-- Name -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Full Name</label>
-        <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
-            <i class="fa-solid fa-user text-sm"></i>
-          </span>
-          <input type="text" [(ngModel)]="form.name" placeholder="Jane Admin"
-            class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none"
-            style="border-color: var(--color-border); color: var(--color-text-primary)" />
-        </div>
-      </div>
+      <!-- autocomplete="off" on the form wrapper kills browser autofill -->
+      <div autocomplete="off">
 
-      <!-- Email -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Email</label>
-        <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
-            <i class="fa-solid fa-envelope text-sm"></i>
-          </span>
-          <input type="email" [(ngModel)]="form.email" placeholder="admin@school.ac.ke"
-            class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none"
-            style="border-color: var(--color-border); color: var(--color-text-primary)" />
+        <!-- Name -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Full Name</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
+              <i class="fa-solid fa-user text-sm"></i>
+            </span>
+            <input type="text" [(ngModel)]="form.name" placeholder="Jane Admin"
+              autocomplete="off"
+              class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none"
+              style="border-color: var(--color-border); color: var(--color-text-primary)" />
+          </div>
         </div>
-      </div>
 
-      <!-- Organization -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Organization</label>
-        <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
-            <i class="fa-solid fa-building text-sm"></i>
-          </span>
-          <select [(ngModel)]="form.organizationId"
-            class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none appearance-none"
-            style="border-color: var(--color-border); color: var(--color-text-primary)">
-            <option value="">Select organization</option>
-            @for (org of organizations(); track org.id) {
-              <option [value]="org.id">{{ org.name }}</option>
-            }
-          </select>
+        <!-- Email -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Email</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
+              <i class="fa-solid fa-envelope text-sm"></i>
+            </span>
+            <input type="text" [(ngModel)]="form.email" placeholder="admin@school.ac.ke"
+              autocomplete="new-email"
+              class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none"
+              style="border-color: var(--color-border); color: var(--color-text-primary)" />
+          </div>
         </div>
-      </div>
 
-      <!-- Temporary Password -->
-      <div class="mb-6">
-        <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">
-          Temporary Password
-        </label>
-        <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
-            <i class="fa-solid fa-lock text-sm"></i>
-          </span>
-          <input
-            [type]="showPassword() ? 'text' : 'password'"
-            [(ngModel)]="form.temporaryPassword"
-            placeholder="Temporary password"
-            class="w-full pl-9 pr-10 py-3 rounded-xl border text-sm outline-none"
-            style="border-color: var(--color-border); color: var(--color-text-primary)" />
-          <button type="button"
-            (click)="showPassword.set(!showPassword())"
-            class="absolute right-3 top-1/2 -translate-y-1/2"
-            style="color: var(--color-text-secondary)">
-            <i class="fa-solid text-sm" [ngClass]="showPassword() ? 'fa-eye-slash' : 'fa-eye'"></i>
-          </button>
+        <!-- Organization -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Organization</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
+              <i class="fa-solid fa-building text-sm"></i>
+            </span>
+            <select [(ngModel)]="form.organizationId"
+              class="w-full pl-9 pr-4 py-3 rounded-xl border text-sm outline-none appearance-none"
+              style="border-color: var(--color-border); color: var(--color-text-primary)">
+              <option value="">Select organization</option>
+              @for (org of organizations(); track org.id) {
+                <option [value]="org.id">{{ org.name }}</option>
+              }
+            </select>
+          </div>
         </div>
-        <p class="text-xs mt-1" style="color: var(--color-text-secondary)">
-          Share this password with the admin so they can log in and change it
-        </p>
+
+        <!-- Temporary Password -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">
+            Temporary Password
+          </label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
+              <i class="fa-solid fa-lock text-sm"></i>
+            </span>
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              [(ngModel)]="form.temporaryPassword"
+              placeholder="Temporary password"
+              autocomplete="new-password"
+              class="w-full pl-9 pr-10 py-3 rounded-xl border text-sm outline-none"
+              style="border-color: var(--color-border); color: var(--color-text-primary)" />
+            <button type="button"
+              (click)="showPassword.set(!showPassword())"
+              class="absolute right-3 top-1/2 -translate-y-1/2"
+              style="color: var(--color-text-secondary)">
+              <i class="fa-solid text-sm" [ngClass]="showPassword() ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
+          </div>
+          <p class="text-xs mt-1" style="color: var(--color-text-secondary)">
+            A welcome email with these credentials will be sent to the admin automatically.
+          </p>
+        </div>
+
       </div>
 
       <div class="flex gap-3">
@@ -204,6 +209,45 @@
             <i class="fa-solid fa-plus"></i>
           }
           Create Admin
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════
+     Delete Confirmation Modal
+════════════════════════════════════════════════ -->
+@if (showDeleteModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
+    style="background-color: rgba(0,0,0,0.5)"
+    (click)="cancelDelete()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6"
+      (click)="$event.stopPropagation()">
+
+      <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
+        <i class="fa-solid fa-user-minus text-red-600"></i>
+      </div>
+
+      <h2 class="text-lg font-bold text-center mb-1" style="color: var(--color-text-primary)">Delete Admin</h2>
+      <p class="text-sm text-center mb-6" style="color: var(--color-text-secondary)">
+        Are you sure you want to remove
+        <span class="font-semibold" style="color: var(--color-text-primary)">{{ adminToDelete()?.name }}</span>
+        as admin of
+        <span class="font-semibold" style="color: var(--color-text-primary)">{{ adminToDelete()?.orgName }}</span>?
+        They will lose access immediately.
+      </p>
+
+      <div class="flex gap-3">
+        <button (click)="cancelDelete()"
+          class="flex-1 py-3 rounded-xl text-sm font-medium border"
+          style="border-color: var(--color-border); color: var(--color-text-secondary)">
+          Cancel
+        </button>
+        <button (click)="deleteAdmin()"
+          class="flex-1 py-3 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-all">
+          Delete
         </button>
       </div>
 

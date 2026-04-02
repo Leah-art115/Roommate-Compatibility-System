@@ -87,7 +87,6 @@ export class OrgAdminService {
         gender: invite.gender,
         status: invite.status,
         inviteSent: !invite.token.startsWith('PENDING_'),
-        // bookingStatus comes from the joined User record; null if not yet registered
         bookingStatus: registeredUser?.bookingStatus ?? null,
         hasRoom: registeredUser?.bookingStatus === 'ALLOCATED',
       };
@@ -192,22 +191,53 @@ export class OrgAdminService {
     };
   }
 
-  // Delete a student
+  // Delete a student — removes everything: User record, all related data, and the Invite
   async deleteStudent(user: any, inviteId: string) {
-    const student = await this.prisma.invite.findUnique({
+    // Find the invite first
+    const invite = await this.prisma.invite.findUnique({
       where: { id: inviteId },
     });
 
-    if (!student) {
+    if (!invite) {
       throw new NotFoundException('Student not found');
     }
 
+    // Find the registered User by email (may not exist if they never registered)
+    const registeredUser = await this.prisma.user.findUnique({
+      where: { email: invite.email },
+    });
+
+    if (registeredUser) {
+      // Delete all child records in correct order (foreign key constraints)
+      await this.prisma.answer.deleteMany({
+        where: { userId: registeredUser.id },
+      });
+
+      await this.prisma.roomAllocation.deleteMany({
+        where: { userId: registeredUser.id },
+      });
+
+      await this.prisma.roomSwitchRequest.deleteMany({
+        where: { userId: registeredUser.id },
+      });
+
+      await this.prisma.complaint.deleteMany({
+        where: { userId: registeredUser.id },
+      });
+
+      // Delete the User — this invalidates their JWT on next request
+      await this.prisma.user.delete({
+        where: { id: registeredUser.id },
+      });
+    }
+
+    // Always delete the invite regardless of whether they registered
     await this.prisma.invite.delete({
       where: { id: inviteId },
     });
 
     return {
-      message: 'Student deleted successfully',
+      message: 'Student and all associated records deleted successfully',
     };
   }
 }
