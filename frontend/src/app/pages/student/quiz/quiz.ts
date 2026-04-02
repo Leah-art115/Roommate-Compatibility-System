@@ -21,8 +21,10 @@ export class StudentQuizComponent implements OnInit {
   submitting = signal(false);
   alreadySubmitted = signal(false);
 
-  currentIndex = signal(0);
+  // Warning screen — student must acknowledge before seeing questions
+  warningAcknowledged = signal(false);
 
+  currentIndex = signal(0);
   answers = signal<Record<string, string | string[]>>({});
 
   ngOnInit() {
@@ -50,6 +52,10 @@ export class StudentQuizComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  acknowledgeWarning() {
+    this.warningAcknowledged.set(true);
   }
 
   get currentQuestion(): any {
@@ -90,8 +96,7 @@ export class StudentQuizComponent implements OnInit {
 
   selectSingle(option: string) {
     const q = this.currentQuestion;
-    const newAnswers = { ...this.answers(), [q.id]: option };
-    this.answers.set(newAnswers);
+    this.answers.set({ ...this.answers(), [q.id]: option });
   }
 
   toggleMultiple(option: string) {
@@ -100,8 +105,7 @@ export class StudentQuizComponent implements OnInit {
     const updated = current.includes(option)
       ? current.filter(o => o !== option)
       : [...current, option];
-    const newAnswers = { ...this.answers(), [q.id]: updated };
-    this.answers.set(newAnswers);
+    this.answers.set({ ...this.answers(), [q.id]: updated });
   }
 
   isSelected(option: string): boolean {
@@ -114,8 +118,7 @@ export class StudentQuizComponent implements OnInit {
 
   selectScale(value: number) {
     const q = this.currentQuestion;
-    const newAnswers = { ...this.answers(), [q.id]: value.toString() };
-    this.answers.set(newAnswers);
+    this.answers.set({ ...this.answers(), [q.id]: value.toString() });
   }
 
   get scaleValue(): number {
@@ -130,25 +133,15 @@ export class StudentQuizComponent implements OnInit {
     if (!q || q.type !== 'SCALE') return {};
     const min = q.scaleMin || 'Strongly Disagree';
     const max = q.scaleMax || 'Strongly Agree';
-    return {
-      1: min,
-      2: '',
-      3: 'Neutral',
-      4: '',
-      5: max,
-    };
+    return { 1: min, 2: '', 3: 'Neutral', 4: '', 5: max };
   }
 
   next() {
-    if (!this.isLast) {
-      this.currentIndex.update(i => i + 1);
-    }
+    if (!this.isLast) this.currentIndex.update(i => i + 1);
   }
 
   back() {
-    if (!this.isFirst) {
-      this.currentIndex.update(i => i - 1);
-    }
+    if (!this.isFirst) this.currentIndex.update(i => i - 1);
   }
 
   get allAnswered(): boolean {

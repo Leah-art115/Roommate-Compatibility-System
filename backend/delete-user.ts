@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  const email = 'olaachieng@gmail.com';
+  const email = 'jane@gmail.com';
 
   // Delete User and all related records
   const user = await prisma.user.findUnique({ where: { email } });

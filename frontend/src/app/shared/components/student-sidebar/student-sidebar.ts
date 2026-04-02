@@ -1,7 +1,8 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { StudentService } from '../../services/student.service';
 
 @Component({
   selector: 'app-student-sidebar',
@@ -9,22 +10,45 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule, RouterModule],
   templateUrl: './student-sidebar.html',
 })
-export class StudentSidebarComponent {
-  
+export class StudentSidebarComponent implements OnInit {
+
   @Input() collapsed = false;
   private authService = inject(AuthService);
+  private studentService = inject(StudentService);
   private router = inject(Router);
 
   user = this.authService.getUser();
+  quizDone = signal(false);
 
-  navItems = [
-    { label: 'Dashboard', icon: 'fa-gauge', route: '/student/dashboard' },
-    { label: 'My Quiz', icon: 'fa-clipboard-question', route: '/student/quiz' },
-    { label: 'Browse Rooms', icon: 'fa-door-open', route: '/student/rooms' },
-    { label: 'My Room', icon: 'fa-house', route: '/student/my-room' },
-    { label: 'Complaints', icon: 'fa-triangle-exclamation', route: '/student/complaints' },
-    { label: 'Profile', icon: 'fa-user', route: '/student/profile' },
+  allNavItems = [
+    { label: 'Dashboard', icon: 'fa-gauge', route: '/student/dashboard', alwaysShow: true },
+    { label: 'My Quiz', icon: 'fa-clipboard-question', route: '/student/quiz', alwaysShow: false },
+    { label: 'Browse Rooms', icon: 'fa-door-open', route: '/student/rooms', alwaysShow: true },
+    { label: 'My Room', icon: 'fa-house', route: '/student/my-room', alwaysShow: true },
+    { label: 'Complaints', icon: 'fa-triangle-exclamation', route: '/student/complaints', alwaysShow: true },
+    { label: 'Profile', icon: 'fa-user', route: '/student/profile', alwaysShow: true },
   ];
+
+  ngOnInit() {
+    // Check if quiz has already been submitted
+    this.studentService.getMyAnswers().subscribe({
+      next: (answers) => {
+        this.quizDone.set(answers.length > 0);
+      },
+      error: () => {
+        this.quizDone.set(false);
+      },
+    });
+  }
+
+  get navItems() {
+    return this.allNavItems.filter(item => {
+      if (item.alwaysShow) return true;
+      // Only show quiz if not done yet
+      if (item.route === '/student/quiz') return !this.quizDone();
+      return true;
+    });
+  }
 
   isActive(route: string): boolean {
     return this.router.url === route;
