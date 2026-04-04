@@ -19,25 +19,30 @@ export class RoomsService {
 
   // Calculate compatibility score between two students
   private calculateCompatibility(
-    answers1: { questionId: string; answer: string }[],
-    answers2: { questionId: string; answer: string }[],
-  ): number {
-    if (answers1.length === 0 || answers2.length === 0) return 0;
+  answers1: { questionId: string; answer: string }[],
+  answers2: { questionId: string; answer: string }[],
+  weights1?: { questionId: string; weight: number }[],
+): number {
+  if (answers1.length === 0 || answers2.length === 0) return 0;
 
-    let matches = 0;
-    let total = 0;
+  let weightedMatches = 0;
+  let totalWeight = 0;
 
-    for (const ans1 of answers1) {
-      const ans2 = answers2.find((a) => a.questionId === ans1.questionId);
-      if (ans2) {
-        total++;
-        if (ans1.answer === ans2.answer) matches++;
+  for (const ans1 of answers1) {
+    const ans2 = answers2.find((a) => a.questionId === ans1.questionId);
+    if (ans2) {
+      // Get this student's weight for this question (default to 2 if not set)
+      const w = weights1?.find((w) => w.questionId === ans1.questionId)?.weight ?? 2;
+      totalWeight += w;
+      if (ans1.answer === ans2.answer) {
+        weightedMatches += w;
       }
     }
-
-    if (total === 0) return 0;
-    return Math.round((matches / total) * 100);
   }
+
+  if (totalWeight === 0) return 0;
+  return Math.round((weightedMatches / totalWeight) * 100);
+}
 
   // Build a side-by-side answer comparison between current student and a roommate
   private buildAnswerComparison(
@@ -186,6 +191,16 @@ export class RoomsService {
       );
     }
 
+    // Get student's weights
+    const studentWeights = await this.prisma.questionWeight.findMany({
+      where: { userId },
+    });
+
+    const myWeights = studentWeights.map((w) => ({
+      questionId: w.questionId,
+      weight: w.weight,
+    }));
+
     // Get all questions for the organization (for answer comparison labels)
     const questions = await this.prisma.question.findMany({
       where: { organizationId },
@@ -228,7 +243,7 @@ export class RoomsService {
           answer: a.answer,
         }));
 
-        const compatibility = this.calculateCompatibility(myAnswers, theirAnswers);
+        const compatibility = this.calculateCompatibility(myAnswers, theirAnswers, myWeights);
 
         const answerComparison = this.buildAnswerComparison(
           questions,
@@ -358,6 +373,16 @@ export class RoomsService {
       orderBy: { order: 'asc' },
     });
 
+    // Get student's weights
+    const studentWeights = await this.prisma.questionWeight.findMany({
+      where: { userId },
+    });
+
+    const myWeights = studentWeights.map((w) => ({
+      questionId: w.questionId,
+      weight: w.weight,
+    }));
+
     // Get roommates with their answers
     const roommateAllocations = await this.prisma.roomAllocation.findMany({
       where: {
@@ -382,7 +407,7 @@ export class RoomsService {
         answer: a.answer,
       }));
 
-      const compatibility = this.calculateCompatibility(myAnswers, theirAnswers);
+      const compatibility = this.calculateCompatibility(myAnswers, theirAnswers, myWeights);
 
       const answerComparison = this.buildAnswerComparison(
         questions,

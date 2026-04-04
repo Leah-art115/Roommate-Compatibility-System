@@ -22,7 +22,6 @@ import { Role } from '@prisma/client';
 export class QuestionsController {
   constructor(private questionsService: QuestionsService) {}
 
-  // Org admin creates a question
   @UseGuards(RolesGuard)
   @Roles(Role.ORG_ADMIN)
   @Post()
@@ -49,7 +48,6 @@ export class QuestionsController {
     );
   }
 
-  // Org admin gets all questions
   @UseGuards(RolesGuard)
   @Roles(Role.ORG_ADMIN)
   @Get('admin')
@@ -57,14 +55,12 @@ export class QuestionsController {
     return this.questionsService.getQuestions(user.organizationId);
   }
 
-  // Student gets their questions
   @Roles(Role.USER)
   @Get('my')
   getQuestionsForStudent(@CurrentUser() user: any) {
     return this.questionsService.getQuestionsForStudent(user.organizationId);
   }
 
-  // Org admin updates a question
   @UseGuards(RolesGuard)
   @Roles(Role.ORG_ADMIN)
   @Put(':id')
@@ -82,7 +78,6 @@ export class QuestionsController {
     );
   }
 
-  // Org admin deletes a question
   @UseGuards(RolesGuard)
   @Roles(Role.ORG_ADMIN)
   @Delete(':id')
@@ -90,24 +85,34 @@ export class QuestionsController {
     return this.questionsService.deleteQuestion(id, user.organizationId);
   }
 
-  // Student submits answers
+  // Student submits answers + weights
   @Roles(Role.USER)
   @Post('submit')
   submitAnswers(
     @CurrentUser() user: any,
-    @Body() body: { answers: { questionId: string; answer: string }[] },
+    @Body()
+    body: {
+      answers: { questionId: string; answer: string }[];
+      weights: { questionId: string; weight: number }[];
+    },
   ) {
     return this.questionsService.submitAnswers(
       user.sub,
       user.organizationId,
       body.answers,
+      body.weights,
     );
   }
 
-  // Student gets their submitted answers
   @Roles(Role.USER)
   @Get('my-answers')
   getMyAnswers(@CurrentUser() user: any) {
     return this.questionsService.getStudentAnswers(user.sub);
+  }
+
+  @Roles(Role.USER)
+  @Get('my-weights')
+  getMyWeights(@CurrentUser() user: any) {
+    return this.questionsService.getStudentWeights(user.sub);
   }
 }

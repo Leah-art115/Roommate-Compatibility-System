@@ -37,11 +37,8 @@
     </div>
 
   } @else if (!warningAcknowledged()) {
-
-    <!-- ── Warning Screen ── -->
+    <!-- Warning Screen -->
     <div class="bg-white rounded-2xl border overflow-hidden" style="border-color: var(--color-border)">
-
-      <!-- Warning header -->
       <div class="px-6 py-5 border-b flex items-center gap-4"
         style="border-color: var(--color-border); background-color: #fffbeb">
         <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -53,11 +50,8 @@
           <p class="text-xs mt-0.5" style="color: #a16207">Your answers cannot be changed after submission</p>
         </div>
       </div>
-
-      <!-- Warning body -->
       <div class="px-6 py-6">
         <div class="space-y-4 mb-6">
-
           <div class="flex items-start gap-3">
             <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
               style="background-color: var(--color-neutral-accent); color: var(--color-neutral-primary)">
@@ -66,11 +60,10 @@
             <div>
               <p class="text-sm font-semibold mb-1" style="color: var(--color-text-primary)">One submission only</p>
               <p class="text-sm" style="color: var(--color-text-secondary)">
-                Once you submit this quiz, your answers are final. There is no way to go back and change them, so take your time on each question.
+                Once you submit this quiz, your answers are final. There is no way to go back and change them.
               </p>
             </div>
           </div>
-
           <div class="flex items-start gap-3">
             <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
               style="background-color: var(--color-neutral-accent); color: var(--color-neutral-primary)">
@@ -79,40 +72,36 @@
             <div>
               <p class="text-sm font-semibold mb-1" style="color: var(--color-text-primary)">Answer honestly</p>
               <p class="text-sm" style="color: var(--color-text-secondary)">
-                Your answers are used to match you with roommates who share similar habits and preferences. The more honest you are, the better your match will be.
+                The more honest you are, the better your roommate match will be.
               </p>
             </div>
           </div>
-
           <div class="flex items-start gap-3">
             <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
               style="background-color: var(--color-neutral-accent); color: var(--color-neutral-primary)">
-              <i class="fa-solid fa-clock text-xs"></i>
+              <i class="fa-solid fa-star text-xs"></i>
             </div>
             <div>
-              <p class="text-sm font-semibold mb-1" style="color: var(--color-text-primary)">Take your time</p>
+              <p class="text-sm font-semibold mb-1" style="color: var(--color-text-primary)">Rate what matters to you</p>
               <p class="text-sm" style="color: var(--color-text-secondary)">
-                There's no time limit. Read each question carefully before answering. You can go back to previous questions before submitting.
+                After each question, you'll rate how important that topic is to you personally.
+                This helps us weigh your compatibility score based on what YOU care about most.
               </p>
             </div>
           </div>
-
           <div class="flex items-start gap-3">
             <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
               style="background-color: var(--color-neutral-accent); color: var(--color-neutral-primary)">
               <i class="fa-solid fa-users text-xs"></i>
             </div>
             <div>
-              <p class="text-sm font-semibold mb-1" style="color: var(--color-text-primary)">This quiz has {{ questions().length }} questions</p>
+              <p class="text-sm font-semibold mb-1" style="color: var(--color-text-primary)">{{ questions().length }} questions total</p>
               <p class="text-sm" style="color: var(--color-text-secondary)">
-                You must answer all questions before you can submit. Your progress is saved as you go — navigating back won't lose your answers.
+                You can go back to previous questions before submitting. Your progress is saved as you go.
               </p>
             </div>
           </div>
-
         </div>
-
-        <!-- Acknowledge button -->
         <button
           (click)="acknowledgeWarning()"
           class="w-full py-3.5 rounded-xl text-sm font-semibold text-white transition-all flex items-center justify-center gap-2"
@@ -120,7 +109,6 @@
           <i class="fa-solid fa-circle-check"></i>
           I understand — Start the Quiz
         </button>
-
       </div>
     </div>
 
@@ -242,6 +230,29 @@
           }
         </div>
       }
+
+      <!-- ── Importance Rating (always shown below the question) ── -->
+      <div class="mt-6 pt-5 border-t" style="border-color: var(--color-border)">
+        <p class="text-xs font-semibold mb-3 uppercase tracking-wide"
+          style="color: var(--color-text-secondary)">
+          <i class="fa-solid fa-star mr-1" style="color: var(--color-warning)"></i>
+          How important is this topic to you in a roommate?
+        </p>
+        <div class="grid grid-cols-4 gap-2">
+          @for (opt of weightOptions; track opt.value) {
+            <button
+              (click)="setWeight(currentQuestion.id, opt.value)"
+              class="flex flex-col items-center gap-1.5 py-2.5 px-2 rounded-xl border text-xs font-medium transition-all"
+              [style.border-color]="getWeight(currentQuestion.id) === opt.value ? 'var(--color-neutral-primary)' : 'var(--color-border)'"
+              [style.background-color]="getWeight(currentQuestion.id) === opt.value ? 'var(--color-neutral-accent)' : 'white'"
+              [style.color]="getWeight(currentQuestion.id) === opt.value ? 'var(--color-neutral-primary)' : 'var(--color-text-secondary)'"
+            >
+              <i class="fa-solid text-sm" [ngClass]="opt.icon"></i>
+              <span class="text-center leading-tight">{{ opt.label }}</span>
+            </button>
+          }
+        </div>
+      </div>
 
     </div>
 

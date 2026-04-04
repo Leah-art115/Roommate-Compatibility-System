@@ -20,12 +20,18 @@ export class StudentQuizComponent implements OnInit {
   loading = signal(true);
   submitting = signal(false);
   alreadySubmitted = signal(false);
-
-  // Warning screen — student must acknowledge before seeing questions
   warningAcknowledged = signal(false);
 
   currentIndex = signal(0);
   answers = signal<Record<string, string | string[]>>({});
+  weights = signal<Record<string, number>>({});
+
+  weightOptions = [
+    { value: 1, label: 'Not important', icon: 'fa-circle-minus' },
+    { value: 2, label: 'Somewhat important', icon: 'fa-circle-half-stroke' },
+    { value: 3, label: 'Important', icon: 'fa-circle-dot' },
+    { value: 4, label: 'Very important', icon: 'fa-circle' },
+  ];
 
   ngOnInit() {
     this.studentService.getMyAnswers().subscribe({
@@ -45,6 +51,10 @@ export class StudentQuizComponent implements OnInit {
     this.studentService.getQuestions().subscribe({
       next: (data) => {
         this.questions.set(data);
+        // Default all weights to 2
+        const defaultWeights: Record<string, number> = {};
+        data.forEach(q => defaultWeights[q.id] = 2);
+        this.weights.set(defaultWeights);
         this.loading.set(false);
       },
       error: () => {
@@ -73,13 +83,8 @@ export class StudentQuizComponent implements OnInit {
     return Math.round((answered / this.questions().length) * 100);
   }
 
-  get isFirst(): boolean {
-    return this.currentIndex() === 0;
-  }
-
-  get isLast(): boolean {
-    return this.currentIndex() === this.questions().length - 1;
-  }
+  get isFirst(): boolean { return this.currentIndex() === 0; }
+  get isLast(): boolean { return this.currentIndex() === this.questions().length - 1; }
 
   get currentAnswer(): string | string[] | undefined {
     return this.answers()[this.currentQuestion?.id];
@@ -136,13 +141,16 @@ export class StudentQuizComponent implements OnInit {
     return { 1: min, 2: '', 3: 'Neutral', 4: '', 5: max };
   }
 
-  next() {
-    if (!this.isLast) this.currentIndex.update(i => i + 1);
+  setWeight(questionId: string, weight: number) {
+    this.weights.set({ ...this.weights(), [questionId]: weight });
   }
 
-  back() {
-    if (!this.isFirst) this.currentIndex.update(i => i - 1);
+  getWeight(questionId: string): number {
+    return this.weights()[questionId] ?? 2;
   }
+
+  next() { if (!this.isLast) this.currentIndex.update(i => i + 1); }
+  back() { if (!this.isFirst) this.currentIndex.update(i => i - 1); }
 
   get allAnswered(): boolean {
     return this.questions().every(q => {
@@ -162,7 +170,6 @@ export class StudentQuizComponent implements OnInit {
     this.submitting.set(true);
 
     const payload: { questionId: string; answer: string }[] = [];
-
     for (const [questionId, answer] of Object.entries(this.answers())) {
       if (Array.isArray(answer)) {
         payload.push({ questionId, answer: answer.join(',') });
@@ -171,7 +178,12 @@ export class StudentQuizComponent implements OnInit {
       }
     }
 
-    this.studentService.submitAnswers(payload).subscribe({
+    const weightPayload = Object.entries(this.weights()).map(([questionId, weight]) => ({
+      questionId,
+      weight,
+    }));
+
+    this.studentService.submitAnswers(payload, weightPayload).subscribe({
       next: () => {
         this.notificationService.show('Quiz submitted! You can now browse rooms.', 'success');
         this.router.navigate(['/student/rooms']);

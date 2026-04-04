@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/require-await */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Injectable,
   BadRequestException,
@@ -44,10 +48,7 @@ export class QuestionsService {
       },
     });
 
-    return {
-      message: 'Question created successfully',
-      question,
-    };
+    return { message: 'Question created successfully', question };
   }
 
   async getQuestions(organizationId: string) {
@@ -81,9 +82,7 @@ export class QuestionsService {
       where: { id: questionId },
     });
 
-    if (!question) {
-      throw new NotFoundException('Question not found');
-    }
+    if (!question) throw new NotFoundException('Question not found');
 
     if (question.organizationId !== organizationId) {
       throw new BadRequestException('You can only edit your own questions');
@@ -98,10 +97,7 @@ export class QuestionsService {
       },
     });
 
-    return {
-      message: 'Question updated successfully',
-      question: updated,
-    };
+    return { message: 'Question updated successfully', question: updated };
   }
 
   async deleteQuestion(questionId: string, organizationId: string) {
@@ -109,25 +105,23 @@ export class QuestionsService {
       where: { id: questionId },
     });
 
-    if (!question) {
-      throw new NotFoundException('Question not found');
-    }
+    if (!question) throw new NotFoundException('Question not found');
 
     if (question.organizationId !== organizationId) {
       throw new BadRequestException('You can only delete your own questions');
     }
 
-    await this.prisma.question.delete({
-      where: { id: questionId },
-    });
+    await this.prisma.question.delete({ where: { id: questionId } });
 
     return { message: 'Question deleted successfully' };
   }
 
+  // Student submits answers AND weights together
   async submitAnswers(
     userId: string,
     organizationId: string,
     answers: { questionId: string; answer: string }[],
+    weights: { questionId: string; weight: number }[],
   ) {
     const questions = await this.prisma.question.findMany({
       where: { organizationId },
@@ -143,14 +137,13 @@ export class QuestionsService {
       }
     }
 
-    const existing = await this.prisma.answer.findFirst({
-      where: { userId },
-    });
+    const existing = await this.prisma.answer.findFirst({ where: { userId } });
 
     if (existing) {
       throw new BadRequestException('You have already submitted your answers');
     }
 
+    // Save answers
     await this.prisma.answer.createMany({
       data: answers.map((ans) => ({
         userId,
@@ -158,6 +151,17 @@ export class QuestionsService {
         answer: ans.answer,
       })),
     });
+
+    // Save weights
+    if (weights && weights.length > 0) {
+      await this.prisma.questionWeight.createMany({
+        data: weights.map((w) => ({
+          userId,
+          questionId: w.questionId,
+          weight: w.weight,
+        })),
+      });
+    }
 
     await this.prisma.user.update({
       where: { id: userId },
@@ -171,6 +175,13 @@ export class QuestionsService {
     return this.prisma.answer.findMany({
       where: { userId },
       include: { question: true },
+    });
+  }
+
+  // Get a student's weights
+  async getStudentWeights(userId: string) {
+    return this.prisma.questionWeight.findMany({
+      where: { userId },
     });
   }
 }

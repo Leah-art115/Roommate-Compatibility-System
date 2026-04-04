@@ -80,10 +80,11 @@ model User {
   organization   Organization? @relation(fields: [organizationId], references: [id])
   createdAt      DateTime      @default(now())
 
-  answers        Answer[]
-  roomAllocation RoomAllocation?
-  switchRequests RoomSwitchRequest[]
-  complaints     Complaint[]
+  answers         Answer[]
+  questionWeights QuestionWeight[]
+  roomAllocation  RoomAllocation?
+  switchRequests  RoomSwitchRequest[]
+  complaints      Complaint[]
 }
 
 model Invite {
@@ -104,14 +105,15 @@ model Question {
   text           String
   type           QuestionType
   options        String[]
-  scaleMin       String?      // ← e.g. "Never" or "Early bird"
-  scaleMax       String?      // ← e.g. "Always" or "Night owl"
+  scaleMin       String?
+  scaleMax       String?
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
   order          Int          @default(0)
   createdAt      DateTime     @default(now())
 
-  answers        Answer[]
+  answers         Answer[]
+  questionWeights QuestionWeight[]
 }
 
 model Answer {
@@ -119,6 +121,18 @@ model Answer {
   userId     String
   questionId String
   answer     String
+  user       User     @relation(fields: [userId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, questionId])
+}
+
+model QuestionWeight {
+  id         String   @id @default(uuid())
+  userId     String
+  questionId String
+  weight     Int      // 1=Not important, 2=Somewhat, 3=Important, 4=Very Important
   user       User     @relation(fields: [userId], references: [id])
   question   Question @relation(fields: [questionId], references: [id])
   createdAt  DateTime @default(now())
