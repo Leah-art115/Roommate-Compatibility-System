@@ -111,6 +111,9 @@ export class QuestionsService {
       throw new BadRequestException('You can only delete your own questions');
     }
 
+    // Delete related records first to avoid foreign key violations
+    await this.prisma.questionWeight.deleteMany({ where: { questionId } });
+    await this.prisma.answer.deleteMany({ where: { questionId } });
     await this.prisma.question.delete({ where: { id: questionId } });
 
     return { message: 'Question deleted successfully' };

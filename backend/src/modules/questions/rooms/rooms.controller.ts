@@ -11,10 +11,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
-import { JwtAuthGuard } from '../auth/jwt.guard';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
-import { CurrentUser } from '../auth/current-user.decorator';
+import { JwtAuthGuard } from '../../auth/jwt.guard';
+import { RolesGuard } from '../../auth/roles.guard';
+import { Roles } from '../../auth/roles.decorator';
+import { CurrentUser } from '../../auth/current-user.decorator';
 import { Role } from '@prisma/client';
 
 @UseGuards(JwtAuthGuard)

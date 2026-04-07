@@ -1,9 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 :root {
   /* Neutral (auth pages - before login) */
-  --color-neutral-primary: #1E293B;
-  --color-neutral-secondary: #64748B;
-  --color-neutral-accent: #F8FAFC;
+  --color-neutral-primary: #140332;
+  --color-neutral-secondary: #DDD6FE;
+  --color-neutral-accent: #F5F3FF;
 
   /* Female theme (purple) */
   --color-female-primary: #7C3AED;

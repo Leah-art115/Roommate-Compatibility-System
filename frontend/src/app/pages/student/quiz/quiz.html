@@ -46,7 +46,7 @@
           <i class="fa-solid fa-triangle-exclamation text-lg"></i>
         </div>
         <div>
-          <p class="font-bold text-sm" style="color: #92400e">Before you begin — please read this carefully</p>
+          <p class="font-bold text-sm" style="color: #92400e">Before you begin, please read this carefully</p>
           <p class="text-xs mt-0.5" style="color: #a16207">Your answers cannot be changed after submission</p>
         </div>
       </div>
@@ -107,7 +107,7 @@
           class="w-full py-3.5 rounded-xl text-sm font-semibold text-white transition-all flex items-center justify-center gap-2"
           style="background-color: var(--color-neutral-primary)">
           <i class="fa-solid fa-circle-check"></i>
-          I understand — Start the Quiz
+          I understand. Start the Quiz
         </button>
       </div>
     </div>
@@ -121,12 +121,12 @@
           Question {{ currentIndex() + 1 }} of {{ questions().length }}
         </span>
         <span class="text-xs font-semibold" style="color: var(--color-neutral-primary)">
-          {{ progress }}% complete
+          {{ progress() }}% complete
         </span>
       </div>
       <div class="w-full bg-gray-100 rounded-full h-2">
         <div class="h-2 rounded-full transition-all duration-500"
-          [style.width]="progress + '%'"
+          [style.width]="progress() + '%'"
           style="background-color: var(--color-neutral-primary)">
         </div>
       </div>
@@ -138,22 +138,22 @@
       <div class="mb-6">
         <span class="inline-block px-2 py-1 rounded-lg text-xs font-medium mb-3"
           style="background-color: var(--color-neutral-accent); color: var(--color-neutral-secondary)">
-          @if (currentQuestion.type === 'SINGLE_CHOICE') { Single Choice }
-          @else if (currentQuestion.type === 'MULTIPLE_CHOICE') { Multiple Choice }
+          @if (currentQuestion().type === 'SINGLE_CHOICE') { Single Choice }
+          @else if (currentQuestion().type === 'MULTIPLE_CHOICE') { Multiple Choice }
           @else { Scale }
         </span>
         <p class="text-base font-semibold" style="color: var(--color-text-primary)">
-          {{ currentQuestion.text }}
+          {{ currentQuestion().text }}
         </p>
-        @if (currentQuestion.type === 'MULTIPLE_CHOICE') {
+        @if (currentQuestion().type === 'MULTIPLE_CHOICE') {
           <p class="text-xs mt-1" style="color: var(--color-text-secondary)">Select all that apply</p>
         }
       </div>
 
       <!-- SINGLE CHOICE -->
-      @if (currentQuestion.type === 'SINGLE_CHOICE') {
+      @if (currentQuestion().type === 'SINGLE_CHOICE') {
         <div class="space-y-3">
-          @for (option of currentQuestion.options; track option) {
+          @for (option of currentQuestion().options; track option) {
             <button
               (click)="selectSingle(option)"
               class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium text-left transition-all"
@@ -174,9 +174,9 @@
       }
 
       <!-- MULTIPLE CHOICE -->
-      @if (currentQuestion.type === 'MULTIPLE_CHOICE') {
+      @if (currentQuestion().type === 'MULTIPLE_CHOICE') {
         <div class="space-y-3">
-          @for (option of currentQuestion.options; track option) {
+          @for (option of currentQuestion().options; track option) {
             <button
               (click)="toggleMultiple(option)"
               class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium text-left transition-all"
@@ -198,18 +198,18 @@
       }
 
       <!-- SCALE -->
-      @if (currentQuestion.type === 'SCALE') {
+      @if (currentQuestion().type === 'SCALE') {
         <div>
           <div class="flex justify-between mb-2">
-            @for (val of [1,2,3,4,5]; track val) {
+            @for (val of scaleValues; track val) {
               <button
                 (click)="selectScale(val)"
                 class="flex flex-col items-center gap-2 flex-1"
               >
                 <div class="w-12 h-12 rounded-xl border-2 flex items-center justify-center text-lg font-bold transition-all"
-                  [style.border-color]="scaleValue === val ? 'var(--color-neutral-primary)' : 'var(--color-border)'"
-                  [style.background-color]="scaleValue === val ? 'var(--color-neutral-primary)' : 'white'"
-                  [style.color]="scaleValue === val ? 'white' : 'var(--color-text-secondary)'">
+                  [style.border-color]="scaleValue() === val ? 'var(--color-neutral-primary)' : 'var(--color-border)'"
+                  [style.background-color]="scaleValue() === val ? 'var(--color-neutral-primary)' : 'white'"
+                  [style.color]="scaleValue() === val ? 'white' : 'var(--color-text-secondary)'">
                   {{ val }}
                 </div>
               </button>
@@ -217,21 +217,21 @@
           </div>
           <div class="flex justify-between px-1 mb-3">
             <span class="text-xs font-medium" style="color: var(--color-text-secondary)">
-              {{ currentQuestion.scaleMin || 'Strongly Disagree' }}
+              {{ currentQuestion().scaleMin || 'Strongly Disagree' }}
             </span>
             <span class="text-xs font-medium" style="color: var(--color-text-secondary)">
-              {{ currentQuestion.scaleMax || 'Strongly Agree' }}
+              {{ currentQuestion().scaleMax || 'Strongly Agree' }}
             </span>
           </div>
-          @if (scaleValue > 0) {
+          @if (scaleValue() > 0) {
             <p class="text-center text-sm font-medium" style="color: var(--color-neutral-primary)">
-              {{ scaleLabels[scaleValue] }}
+              {{ scaleLabels()[scaleValue()] }}
             </p>
           }
         </div>
       }
 
-      <!-- ── Importance Rating (always shown below the question) ── -->
+      <!-- Importance Rating -->
       <div class="mt-6 pt-5 border-t" style="border-color: var(--color-border)">
         <p class="text-xs font-semibold mb-3 uppercase tracking-wide"
           style="color: var(--color-text-secondary)">
@@ -241,11 +241,11 @@
         <div class="grid grid-cols-4 gap-2">
           @for (opt of weightOptions; track opt.value) {
             <button
-              (click)="setWeight(currentQuestion.id, opt.value)"
+              (click)="setWeight(currentQuestion().id, opt.value)"
               class="flex flex-col items-center gap-1.5 py-2.5 px-2 rounded-xl border text-xs font-medium transition-all"
-              [style.border-color]="getWeight(currentQuestion.id) === opt.value ? 'var(--color-neutral-primary)' : 'var(--color-border)'"
-              [style.background-color]="getWeight(currentQuestion.id) === opt.value ? 'var(--color-neutral-accent)' : 'white'"
-              [style.color]="getWeight(currentQuestion.id) === opt.value ? 'var(--color-neutral-primary)' : 'var(--color-text-secondary)'"
+              [style.border-color]="getWeight(currentQuestion().id) === opt.value ? 'var(--color-neutral-primary)' : 'var(--color-border)'"
+              [style.background-color]="getWeight(currentQuestion().id) === opt.value ? 'var(--color-neutral-accent)' : 'white'"
+              [style.color]="getWeight(currentQuestion().id) === opt.value ? 'var(--color-neutral-primary)' : 'var(--color-text-secondary)'"
             >
               <i class="fa-solid text-sm" [ngClass]="opt.icon"></i>
               <span class="text-center leading-tight">{{ opt.label }}</span>
@@ -260,17 +260,17 @@
     <div class="flex items-center justify-between">
       <button
         (click)="back()"
-        [disabled]="isFirst"
+        [disabled]="isFirst()"
         class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all disabled:opacity-40"
         style="border-color: var(--color-border); color: var(--color-text-secondary)">
         <i class="fa-solid fa-arrow-left"></i>
         Back
       </button>
 
-      @if (isLast) {
+      @if (isLast()) {
         <button
           (click)="submit()"
-          [disabled]="submitting() || !allAnswered"
+          [disabled]="submitting() || !allAnswered()"
           class="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-50"
           style="background-color: var(--color-neutral-primary)">
           @if (submitting()) {
@@ -283,7 +283,7 @@
       } @else {
         <button
           (click)="next()"
-          [disabled]="!canProceed"
+          [disabled]="!canProceed()"
           class="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
           style="background-color: var(--color-neutral-primary)">
           Next

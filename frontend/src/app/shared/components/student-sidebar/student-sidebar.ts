@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -19,34 +19,35 @@ export class StudentSidebarComponent implements OnInit {
 
   user = this.authService.getUser();
   quizDone = signal(false);
+  booked = signal(false);
 
   allNavItems = [
     { label: 'Dashboard', icon: 'fa-gauge', route: '/student/dashboard', alwaysShow: true },
     { label: 'My Quiz', icon: 'fa-clipboard-question', route: '/student/quiz', alwaysShow: false },
-    { label: 'Browse Rooms', icon: 'fa-door-open', route: '/student/rooms', alwaysShow: true },
+    { label: 'Browse Rooms', icon: 'fa-door-open', route: '/student/rooms', alwaysShow: false },
     { label: 'My Room', icon: 'fa-house', route: '/student/my-room', alwaysShow: true },
     { label: 'Complaints', icon: 'fa-triangle-exclamation', route: '/student/complaints', alwaysShow: true },
     { label: 'Profile', icon: 'fa-user', route: '/student/profile', alwaysShow: true },
   ];
 
-  ngOnInit() {
-    // Check if quiz has already been submitted
-    this.studentService.getMyAnswers().subscribe({
-      next: (answers) => {
-        this.quizDone.set(answers.length > 0);
-      },
-      error: () => {
-        this.quizDone.set(false);
-      },
-    });
-  }
-
-  get navItems() {
-    return this.allNavItems.filter(item => {
+  navItems = computed(() =>
+    this.allNavItems.filter(item => {
       if (item.alwaysShow) return true;
-      // Only show quiz if not done yet
       if (item.route === '/student/quiz') return !this.quizDone();
+      if (item.route === '/student/rooms') return !this.booked();
       return true;
+    })
+  );
+
+  ngOnInit() {
+    this.studentService.getMyAnswers().subscribe({
+      next: (answers) => this.quizDone.set(answers.length > 0),
+      error: () => this.quizDone.set(false),
+    });
+
+    this.studentService.getMyRoom().subscribe({
+      next: () => this.booked.set(true),
+      error: () => this.booked.set(false),
     });
   }
 
