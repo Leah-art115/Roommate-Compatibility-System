@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 
@@ -16,3 +17,7 @@ describe('AuthService', () => {
     expect(service).toBeDefined();
   });
 });
+function expect(service: AuthService) {
+  throw new Error('Function not implemented.');
+}
+

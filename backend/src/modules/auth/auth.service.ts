@@ -52,7 +52,7 @@ export class AuthService {
         password: hashedPassword,
         name: invite.name,
         gender: invite.gender,
-        role: 'USER',
+        role: invite.gender ? 'USER' : 'ORG_ADMIN',
       },
     });
 

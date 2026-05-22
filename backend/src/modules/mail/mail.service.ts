@@ -289,4 +289,79 @@ export class MailService {
       // Don't throw — admin is already created, email failure shouldn't block the response
     }
   }
+
+  async sendAdminInviteEmail(
+    to: string,
+    adminName: string,
+    organizationName: string,
+    token: string,
+  ) {
+    const inviteLink = `https://roommate-compatibility-system.vercel.app/register?token=${token}`;
+
+    const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8" />
+        <style>
+          body { font-family: Arial, sans-serif; background: #080e1a; margin: 0; padding: 0; }
+          .wrapper { padding: 48px 20px; background: #080e1a; }
+          .container { max-width: 600px; margin: 0 auto; background: #0f172a; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); }
+          .header { background: linear-gradient(160deg, #1e3a5f, #0f2347, #0a1628); padding: 52px 44px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.07); }
+          .header h1 { color: #fff; font-size: 26px; margin: 0 0 8px; }
+          .header p { color: rgba(255,255,255,0.4); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin: 0; }
+          .gold-line { height: 1px; background: linear-gradient(90deg, transparent, #e9c46a, transparent); }
+          .body { padding: 44px; }
+          .greeting { font-size: 21px; font-weight: 700; color: #fff; margin-bottom: 14px; }
+          .greeting span { color: #60a5fa; }
+          p { font-size: 14px; line-height: 1.9; color: rgba(255,255,255,0.55); margin: 0 0 20px; }
+          p strong { color: rgba(255,255,255,0.85); }
+          .button-container { text-align: center; margin: 32px 0; }
+          .button { background: linear-gradient(135deg, #60a5fa, #3b82f6); color: #fff !important; padding: 16px 52px; text-decoration: none; border-radius: 50px; font-size: 14px; font-weight: 600; display: inline-block; }
+          .expiry { text-align: center; font-size: 11px; color: rgba(233,196,106,0.9); margin-top: 8px; }
+          .divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 32px 0; }
+          .small { font-size: 12px; color: rgba(255,255,255,0.25); word-break: break-all; }
+          .small a { color: #60a5fa; }
+          .footer { background: rgba(0,0,0,0.3); border-top: 1px solid rgba(255,255,255,0.05); padding: 24px 40px; text-align: center; }
+          .footer p { font-size: 11px; color: rgba(255,255,255,0.2); margin: 0; }
+        </style>
+      </head>
+      <body>
+        <div class="wrapper">
+          <div class="container">
+            <div class="header">
+              <h1>${organizationName}</h1>
+              <p>Admin Account Setup</p>
+            </div>
+            <div class="gold-line"></div>
+            <div class="body">
+              <div class="greeting">Welcome, <span>${adminName}</span> 👋</div>
+              <p>You've been set up as the <strong>Organization Administrator</strong> for <strong>${organizationName}</strong>. Click the button below to set your password and access your admin panel.</p>
+              <div class="button-container">
+                <a href="${inviteLink}" class="button">Set Up My Account &rarr;</a>
+              </div>
+              <p class="expiry">This link expires in 7 days</p>
+              <hr class="divider" />
+              <p class="small">Button not working? Copy and paste this link:<br /><a href="${inviteLink}">${inviteLink}</a></p>
+              <p class="small">If you weren't expecting this, you can safely ignore this email.</p>
+            </div>
+            <div class="footer"><p>Roommate Compatibility System &mdash; ${organizationName}</p></div>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+    try {
+      await this.resend.emails.send({
+        from: 'Roommate System <onboarding@resend.dev>',
+        to,
+        subject: `Set Up Your Admin Account — ${organizationName}`,
+        html,
+      });
+      console.log(`Admin invite email sent to ${to}`);
+    } catch (error) {
+      console.error('Admin invite email error:', error);
+    }
+  }
 }

@@ -133,12 +133,7 @@ export class SuperAdminService {
 
   // ── Org Admins ──
 
-  async createOrgAdmin(
-    name: string,
-    email: string,
-    organizationId: string,
-    temporaryPassword: string,
-  ) {
+  async createOrgAdmin(name: string, email: string, organizationId: string) {
     const org = await this.prisma.organization.findUnique({
       where: { id: organizationId },
     });
@@ -155,35 +150,42 @@ export class SuperAdminService {
       throw new BadRequestException('A user with this email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+    // Check if invite already exists
+    const existingInvite = await this.prisma.invite.findFirst({
+      where: { email, organizationId },
+    });
 
-    const admin = await this.prisma.user.create({
+    if (existingInvite) {
+      throw new BadRequestException('An invite for this email already exists');
+    }
+
+    const { randomBytes } = await import('crypto');
+    const token = randomBytes(32).toString('hex');
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
+    // Create invite record for org admin
+    await this.prisma.invite.create({
       data: {
         name,
         email,
-        password: hashedPassword,
-        role: 'ORG_ADMIN',
         organizationId,
+        token,
+        expiresAt,
+        status: 'PENDING',
+        gender: 'other', // default for admins
       },
     });
 
-    // Send welcome email — non-blocking, failure won't affect the response
-    await this.mailService.sendAdminWelcomeEmail(
-      email,
-      name,
-      org.name,
-      temporaryPassword,
-    );
+    // Send invite link email instead of password
+    await this.mailService.sendAdminInviteEmail(email, name, org.name, token);
 
     return {
-      message: 'Org admin created successfully',
+      message: 'Org admin invite sent successfully',
       admin: {
-        id: admin.id,
-        name: admin.name,
-        email: admin.email,
-        role: admin.role,
-        organizationId: admin.organizationId,
-        temporaryPassword,
+        name,
+        email,
+        organizationId,
       },
     };
   }
