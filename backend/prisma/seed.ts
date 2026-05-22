@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   const existing = await prisma.user.findUnique({
-    where: { email: 'superadmin@roommate.com' },
+    where: { email: process.env.SUPER_ADMIN_EMAIL! },
   });
 
   if (existing) {
@@ -13,12 +13,12 @@ async function main() {
     return;
   }
 
-  const hashedPassword = await bcrypt.hash('SuperAdmin123!', 10);
+  const hashedPassword = await bcrypt.hash(process.env.SUPER_ADMIN_PASSWORD!, 10);
 
   await prisma.user.create({
     data: {
       name: 'Super Admin',
-      email: 'superadmin@roommate.com',
+      email: process.env.SUPER_ADMIN_EMAIL!,
       password: hashedPassword,
       role: 'SUPER_ADMIN',
     },
