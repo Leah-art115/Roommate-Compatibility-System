@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 @Injectable({ providedIn: 'root' })
 export class SuperAdminService {
   private http = inject(HttpClient);
-  private api = 'http://localhost:3000';
+  private api = 'https://roommate-compatibility-system-backend.onrender.com';
 
   getStats() {
     return this.http.get<any>(`${this.api}/super-admin/stats`);

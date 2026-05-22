@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 @Injectable({ providedIn: 'root' })
 export class OrgAdminService {
   private http = inject(HttpClient);
-  private api = 'http://localhost:3000';
+  private api = 'https://roommate-compatibility-system-backend.onrender.com';
 
   // Students
   getStudents() {

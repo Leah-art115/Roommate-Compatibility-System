@@ -18,7 +18,7 @@ export interface JwtPayload {
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private apiUrl = 'http://localhost:3000';
+  private apiUrl = 'https://roommate-compatibility-system-backend.onrender.com';
 
   login(email: string, password: string): Observable<{ access_token: string }> {
     return this.http.post<{ access_token: string }>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
