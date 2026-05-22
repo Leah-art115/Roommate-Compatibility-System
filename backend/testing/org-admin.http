@@ -27,9 +27,9 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzUwNzI5OTksImV4cCI6MTc3NTY3Nzc5OX0.Q-qLYLhnUt78oBgIyz3GUWs9ls0wv9_c5qtUj-MgE2Q
 
 {
-  "name": "",
+  "name": "Leah Achieng",
   "email": "olaachieng123@gmail.com",
-  "gender": "male"
+  "gender": "female"
 }
 
 ### 3. Get all students
@@ -40,7 +40,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhN
 
 ### 4. Send invites to all pending students
 POST http://localhost:3000/org-admin/invites/send-all
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzUwNzI5OTksImV4cCI6MTc3NTY3Nzc5OX0.Q-qLYLhnUt78oBgIyz3GUWs9ls0wv9_c5qtUj-MgE2Q
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMTRmMWRhNC1lOTkxLTRkYTYtYmIyYS02NmU4NTFhMjk0OGQiLCJlbWFpbCI6ImFkbWluQG5haXJvYmkuYWMua2UiLCJyb2xlIjoiT1JHX0FETUlOIiwib3JnYW5pemF0aW9uSWQiOiIwMGUxZTJkYS00YzcyLTQwMWUtOTA3YS02NTZhYTMwYzdiMjQiLCJpYXQiOjE3NzU3Njk5MzAsImV4cCI6MTc3NjM3NDczMH0._9HdMnsAtlD7gzbJCLsjfnPFyRoUK_N1c6p8Rjm5280
 ###
 
 ### 5. Send invite to one student (paste student invite id)

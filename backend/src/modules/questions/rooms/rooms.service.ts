@@ -17,7 +17,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 export class RoomsService {
   constructor(private prisma: PrismaService) {}
 
-  // Calculate compatibility score between two students
+  // Calculate compatibility score between students
   private calculateCompatibility(
   answers1: { questionId: string; answer: string }[],
   answers2: { questionId: string; answer: string }[],
@@ -171,7 +171,6 @@ export class RoomsService {
 
   // Student gets available rooms with compatibility scores + full answer breakdowns
   async getAvailableRooms(userId: string, organizationId: string) {
-    // Get the student with their answers
     const student = await this.prisma.user.findUnique({
       where: { id: userId },
       include: { answers: true },
@@ -201,7 +200,7 @@ export class RoomsService {
       weight: w.weight,
     }));
 
-    // Get all questions for the organization (for answer comparison labels)
+    // Get all questions for the organization for answer comparison
     const questions = await this.prisma.question.findMany({
       where: { organizationId },
       orderBy: { order: 'asc' },
