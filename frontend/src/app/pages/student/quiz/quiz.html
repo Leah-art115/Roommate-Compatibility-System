@@ -1,7 +1,7 @@
 <div class="max-w-2xl mx-auto">
 
-  <div class="mb-8">
-    <h1 class="text-2xl font-bold" style="color: var(--color-text-primary)">Compatibility Quiz</h1>
+  <div class="mb-6">
+    <h1 class="text-xl font-bold" style="color: var(--color-text-primary)">Compatibility Quiz</h1>
     <p class="text-sm mt-1" style="color: var(--color-text-secondary)">
       Your answers help us match you with the most compatible roommates
     </p>
@@ -13,7 +13,7 @@
     </div>
 
   } @else if (alreadySubmitted()) {
-    <div class="bg-white rounded-2xl border p-12 text-center" style="border-color: var(--color-border)">
+    <div class="bg-white rounded-2xl border p-10 text-center" style="border-color: var(--color-border)">
       <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
         <i class="fa-solid fa-circle-check text-green-600 text-2xl"></i>
       </div>
@@ -30,16 +30,15 @@
     </div>
 
   } @else if (questions().length === 0) {
-    <div class="bg-white rounded-2xl border p-12 text-center" style="border-color: var(--color-border)">
+    <div class="bg-white rounded-2xl border p-10 text-center" style="border-color: var(--color-border)">
       <i class="fa-solid fa-clipboard-question text-4xl mb-4" style="color: var(--color-border)"></i>
       <p class="font-medium" style="color: var(--color-text-primary)">No questions available yet</p>
       <p class="text-sm mt-1" style="color: var(--color-text-secondary)">Your organization hasn't set up the quiz yet. Check back soon.</p>
     </div>
 
   } @else if (!warningAcknowledged()) {
-    <!-- Warning Screen -->
     <div class="bg-white rounded-2xl border overflow-hidden" style="border-color: var(--color-border)">
-      <div class="px-6 py-5 border-b flex items-center gap-4"
+      <div class="px-5 py-4 border-b flex items-start gap-4"
         style="border-color: var(--color-border); background-color: #fffbeb">
         <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
           style="background-color: #fef3c7; color: var(--color-warning)">
@@ -50,57 +49,20 @@
           <p class="text-xs mt-0.5" style="color: #a16207">Your answers cannot be changed after submission</p>
         </div>
       </div>
-      <div class="px-6 py-6">
+      <div class="px-5 py-5">
         <div class="space-y-4 mb-6">
-          <div class="flex items-start gap-3">
-            <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-              style="background-color: var(--color-neutral-accent); color: var(--color-neutral-primary)">
-              <i class="fa-solid fa-lock text-xs"></i>
+          @for (item of warningItems; track item.icon) {
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                style="background-color: var(--color-neutral-accent); color: var(--color-neutral-primary)">
+                <i class="fa-solid {{ item.icon }} text-xs"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold mb-1" style="color: var(--color-text-primary)">{{ item.title }}</p>
+                <p class="text-sm" style="color: var(--color-text-secondary)">{{ item.description }}</p>
+              </div>
             </div>
-            <div>
-              <p class="text-sm font-semibold mb-1" style="color: var(--color-text-primary)">One submission only</p>
-              <p class="text-sm" style="color: var(--color-text-secondary)">
-                Once you submit this quiz, your answers are final. There is no way to go back and change them.
-              </p>
-            </div>
-          </div>
-          <div class="flex items-start gap-3">
-            <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-              style="background-color: var(--color-neutral-accent); color: var(--color-neutral-primary)">
-              <i class="fa-solid fa-heart text-xs"></i>
-            </div>
-            <div>
-              <p class="text-sm font-semibold mb-1" style="color: var(--color-text-primary)">Answer honestly</p>
-              <p class="text-sm" style="color: var(--color-text-secondary)">
-                The more honest you are, the better your roommate match will be.
-              </p>
-            </div>
-          </div>
-          <div class="flex items-start gap-3">
-            <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-              style="background-color: var(--color-neutral-accent); color: var(--color-neutral-primary)">
-              <i class="fa-solid fa-star text-xs"></i>
-            </div>
-            <div>
-              <p class="text-sm font-semibold mb-1" style="color: var(--color-text-primary)">Rate what matters to you</p>
-              <p class="text-sm" style="color: var(--color-text-secondary)">
-                After each question, you'll rate how important that topic is to you personally.
-                This helps us weigh your compatibility score based on what YOU care about most.
-              </p>
-            </div>
-          </div>
-          <div class="flex items-start gap-3">
-            <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-              style="background-color: var(--color-neutral-accent); color: var(--color-neutral-primary)">
-              <i class="fa-solid fa-users text-xs"></i>
-            </div>
-            <div>
-              <p class="text-sm font-semibold mb-1" style="color: var(--color-text-primary)">{{ questions().length }} questions total</p>
-              <p class="text-sm" style="color: var(--color-text-secondary)">
-                You can go back to previous questions before submitting. Your progress is saved as you go.
-              </p>
-            </div>
-          </div>
+          }
         </div>
         <button
           (click)="acknowledgeWarning()"
@@ -115,7 +77,7 @@
   } @else {
 
     <!-- Progress bar -->
-    <div class="bg-white rounded-2xl border p-6 mb-4" style="border-color: var(--color-border)">
+    <div class="bg-white rounded-2xl border p-5 mb-4" style="border-color: var(--color-border)">
       <div class="flex items-center justify-between mb-2">
         <span class="text-xs font-medium" style="color: var(--color-text-secondary)">
           Question {{ currentIndex() + 1 }} of {{ questions().length }}
@@ -133,9 +95,8 @@
     </div>
 
     <!-- Question card -->
-    <div class="bg-white rounded-2xl border p-6 mb-4" style="border-color: var(--color-border)">
-
-      <div class="mb-6">
+    <div class="bg-white rounded-2xl border p-5 mb-4" style="border-color: var(--color-border)">
+      <div class="mb-5">
         <span class="inline-block px-2 py-1 rounded-lg text-xs font-medium mb-3"
           style="background-color: var(--color-neutral-accent); color: var(--color-neutral-secondary)">
           @if (currentQuestion().type === 'SINGLE_CHOICE') { Single Choice }
@@ -152,15 +113,14 @@
 
       <!-- SINGLE CHOICE -->
       @if (currentQuestion().type === 'SINGLE_CHOICE') {
-        <div class="space-y-3">
+        <div class="space-y-2">
           @for (option of currentQuestion().options; track option) {
             <button
               (click)="selectSingle(option)"
               class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium text-left transition-all"
               [style.border-color]="isSelected(option) ? 'var(--color-neutral-primary)' : 'var(--color-border)'"
               [style.background-color]="isSelected(option) ? 'var(--color-neutral-accent)' : 'white'"
-              [style.color]="isSelected(option) ? 'var(--color-neutral-primary)' : 'var(--color-text-primary)'"
-            >
+              [style.color]="isSelected(option) ? 'var(--color-neutral-primary)' : 'var(--color-text-primary)'">
               <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
                 [style.border-color]="isSelected(option) ? 'var(--color-neutral-primary)' : 'var(--color-border)'">
                 @if (isSelected(option)) {
@@ -175,15 +135,14 @@
 
       <!-- MULTIPLE CHOICE -->
       @if (currentQuestion().type === 'MULTIPLE_CHOICE') {
-        <div class="space-y-3">
+        <div class="space-y-2">
           @for (option of currentQuestion().options; track option) {
             <button
               (click)="toggleMultiple(option)"
               class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium text-left transition-all"
               [style.border-color]="isSelected(option) ? 'var(--color-neutral-primary)' : 'var(--color-border)'"
               [style.background-color]="isSelected(option) ? 'var(--color-neutral-accent)' : 'white'"
-              [style.color]="isSelected(option) ? 'var(--color-neutral-primary)' : 'var(--color-text-primary)'"
-            >
+              [style.color]="isSelected(option) ? 'var(--color-neutral-primary)' : 'var(--color-text-primary)'">
               <div class="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0"
                 [style.border-color]="isSelected(option) ? 'var(--color-neutral-primary)' : 'var(--color-border)'"
                 [style.background-color]="isSelected(option) ? 'var(--color-neutral-primary)' : 'white'">
@@ -200,13 +159,12 @@
       <!-- SCALE -->
       @if (currentQuestion().type === 'SCALE') {
         <div>
-          <div class="flex justify-between mb-2">
+          <div class="flex justify-between gap-1 mb-2">
             @for (val of scaleValues; track val) {
               <button
                 (click)="selectScale(val)"
-                class="flex flex-col items-center gap-2 flex-1"
-              >
-                <div class="w-12 h-12 rounded-xl border-2 flex items-center justify-center text-lg font-bold transition-all"
+                class="flex flex-col items-center gap-1 flex-1">
+                <div class="w-full aspect-square max-w-12 rounded-xl border-2 flex items-center justify-center text-base font-bold transition-all"
                   [style.border-color]="scaleValue() === val ? 'var(--color-neutral-primary)' : 'var(--color-border)'"
                   [style.background-color]="scaleValue() === val ? 'var(--color-neutral-primary)' : 'white'"
                   [style.color]="scaleValue() === val ? 'white' : 'var(--color-text-secondary)'">
@@ -232,32 +190,30 @@
       }
 
       <!-- Importance Rating -->
-      <div class="mt-6 pt-5 border-t" style="border-color: var(--color-border)">
+      <div class="mt-5 pt-5 border-t" style="border-color: var(--color-border)">
         <p class="text-xs font-semibold mb-3 uppercase tracking-wide"
           style="color: var(--color-text-secondary)">
           <i class="fa-solid fa-star mr-1" style="color: var(--color-warning)"></i>
-          How important is this topic to you in a roommate?
+          How important is this topic to you?
         </p>
-        <div class="grid grid-cols-4 gap-2">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
           @for (opt of weightOptions; track opt.value) {
             <button
               (click)="setWeight(currentQuestion().id, opt.value)"
               class="flex flex-col items-center gap-1.5 py-2.5 px-2 rounded-xl border text-xs font-medium transition-all"
               [style.border-color]="getWeight(currentQuestion().id) === opt.value ? 'var(--color-neutral-primary)' : 'var(--color-border)'"
               [style.background-color]="getWeight(currentQuestion().id) === opt.value ? 'var(--color-neutral-accent)' : 'white'"
-              [style.color]="getWeight(currentQuestion().id) === opt.value ? 'var(--color-neutral-primary)' : 'var(--color-text-secondary)'"
-            >
+              [style.color]="getWeight(currentQuestion().id) === opt.value ? 'var(--color-neutral-primary)' : 'var(--color-text-secondary)'">
               <i class="fa-solid text-sm" [ngClass]="opt.icon"></i>
               <span class="text-center leading-tight">{{ opt.label }}</span>
             </button>
           }
         </div>
       </div>
-
     </div>
 
     <!-- Navigation -->
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between gap-3">
       <button
         (click)="back()"
         [disabled]="isFirst()"

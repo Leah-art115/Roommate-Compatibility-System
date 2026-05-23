@@ -191,4 +191,26 @@ export class StudentQuizComponent implements OnInit {
       },
     });
   }
+  warningItems = [
+  {
+    icon: 'fa-lock',
+    title: 'One submission only',
+    description: 'Once you submit this quiz, your answers are final. There is no way to go back and change them.'
+  },
+  {
+    icon: 'fa-heart',
+    title: 'Answer honestly',
+    description: 'The more honest you are, the better your roommate match will be.'
+  },
+  {
+    icon: 'fa-star',
+    title: 'Rate what matters to you',
+    description: 'After each question, you\'ll rate how important that topic is to you personally.'
+  },
+  {
+    icon: 'fa-users',
+    title: `${this.questions().length} questions total`,
+    description: 'You can go back to previous questions before submitting. Your progress is saved as you go.'
+  }
+];
 }

@@ -12,11 +12,17 @@ import { AuthService } from '../../../shared/services/auth.service';
 })
 export class StudentDashboardComponent {
   private authService = inject(AuthService);
-  sidebarCollapsed = signal(false);
+
 
   user = this.authService.getUser();
 
-  toggleSidebar() {
-    this.sidebarCollapsed.update(v => !v);
-  }
+ sidebarOpen = signal(false);
+
+toggleSidebar() {
+  this.sidebarOpen.update(v => !v);
+}
+
+closeSidebar() {
+  this.sidebarOpen.set(false);
+}
 }

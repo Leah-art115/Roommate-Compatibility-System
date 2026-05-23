@@ -13,7 +13,10 @@ async function main() {
     return;
   }
 
-  const hashedPassword = await bcrypt.hash(process.env.SUPER_ADMIN_PASSWORD!, 10);
+  const hashedPassword = await bcrypt.hash(
+    process.env.SUPER_ADMIN_PASSWORD!,
+    10,
+  );
 
   await prisma.user.create({
     data: {

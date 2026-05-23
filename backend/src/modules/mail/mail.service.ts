@@ -12,7 +12,7 @@ export class MailService {
     token: string,
     gender?: string,
   ) {
-    const inviteLink = `http://localhost:4200/register?token=${token}`;
+    const inviteLink = `https://roommate-compatibility-system.vercel.app/register?token=${token}`;
     const isFemale = gender?.toLowerCase() === 'female';
 
     const colors = isFemale
@@ -146,7 +146,7 @@ export class MailService {
     organizationName: string,
     temporaryPassword: string,
   ) {
-    const loginLink = `http://localhost:4200/login`;
+    const loginLink = `https://roommate-compatibility-system.vercel.app/login`;
     const supportEmail = `support@roommatesystem.com`;
 
     const html = `

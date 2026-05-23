@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { StudentService } from '../../services/student.service';
+import { Output, EventEmitter } from '@angular/core';
+
+
 
 @Component({
   selector: 'app-student-sidebar',
@@ -11,6 +14,7 @@ import { StudentService } from '../../services/student.service';
   templateUrl: './student-sidebar.html',
 })
 export class StudentSidebarComponent implements OnInit {
+  @Output() linkClicked = new EventEmitter<void>();
 
   @Input() collapsed = false;
   private authService = inject(AuthService);
@@ -56,8 +60,9 @@ export class StudentSidebarComponent implements OnInit {
   }
 
   navigate(route: string) {
-    this.router.navigate([route]);
-  }
+  this.router.navigate([route]);
+  this.linkClicked.emit();
+}
 
   logout() {
     this.authService.logout();
