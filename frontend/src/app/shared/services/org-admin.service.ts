@@ -1,10 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class OrgAdminService {
   private http = inject(HttpClient);
-  private api = 'https://roommate-compatibility-system-backend.onrender.com';
+  private api = environment.apiUrl;
 
   // Students
   getStudents() {

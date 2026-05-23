@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import { environment } from '../../../environments/environment';
 
 export interface JwtPayload {
   sub: string;
@@ -18,7 +19,7 @@ export interface JwtPayload {
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private apiUrl = 'https://roommate-compatibility-system-backend.onrender.com';
+  private apiUrl = environment.apiUrl;
 
   login(email: string, password: string): Observable<{ access_token: string }> {
     return this.http.post<{ access_token: string }>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
