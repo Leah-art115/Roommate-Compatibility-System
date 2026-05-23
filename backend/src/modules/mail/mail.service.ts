@@ -1,9 +1,19 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Resend } from 'resend';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailService {
   private resend = new Resend(process.env.RESEND_API_KEY);
+  private appUrl: string;
+
+  constructor(private configService: ConfigService) {
+    const appUrl = this.configService.get<string>('APP_URL');
+    if (!appUrl) {
+      throw new InternalServerErrorException('APP_URL is not configured');
+    }
+    this.appUrl = appUrl;
+  }
 
   async sendInviteEmail(
     to: string,
@@ -12,7 +22,7 @@ export class MailService {
     token: string,
     gender?: string,
   ) {
-    const inviteLink = `https://roommate-compatibility-system.vercel.app/register?token=${token}`;
+    const inviteLink = `${this.appUrl}/register?token=${token}`;
     const isFemale = gender?.toLowerCase() === 'female';
 
     const colors = isFemale
@@ -146,7 +156,7 @@ export class MailService {
     organizationName: string,
     temporaryPassword: string,
   ) {
-    const loginLink = `https://roommate-compatibility-system.vercel.app/login`;
+    const loginLink = `${this.appUrl}/login`;
     const supportEmail = `support@roommatesystem.com`;
 
     const html = `
@@ -296,7 +306,7 @@ export class MailService {
     organizationName: string,
     token: string,
   ) {
-    const inviteLink = `https://roommate-compatibility-system.vercel.app/register?token=${token}`;
+    const inviteLink = `${this.appUrl}/register?token=${token}`;
 
     const html = `
     <!DOCTYPE html>

@@ -242,7 +242,7 @@ export class SuperAdminService {
       openComplaints,
     ] = await Promise.all([
       this.prisma.organization.count(),
-      this.prisma.user.count(),
+      this.prisma.user.count({ where: { role: { not: 'SUPER_ADMIN' } } }),
       this.prisma.user.count({ where: { role: 'USER' } }),
       this.prisma.user.count({ where: { role: 'ORG_ADMIN' } }),
       this.prisma.room.count(),

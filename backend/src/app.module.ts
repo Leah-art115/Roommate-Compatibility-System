@@ -8,9 +8,11 @@ import { OrgAdminModule } from './modules/org-admin/org-admin.module';
 import { QuestionsModule } from './modules/questions/questions.module';
 import { RoomsModule } from './modules/questions/rooms/rooms.module';
 import { ComplaintsModule } from './modules/complaints/complaints.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     PrismaModule,
     SuperAdminModule,
