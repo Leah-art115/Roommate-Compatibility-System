@@ -36,7 +36,6 @@ export class SuperAdminService {
     name: string;
     email: string;
     organizationId: string;
-    temporaryPassword: string;
   }) {
     return this.http.post(`${this.api}/super-admin/org-admins`, data);
   }

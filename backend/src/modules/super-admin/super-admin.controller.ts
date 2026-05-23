@@ -65,7 +65,6 @@ export class SuperAdminController {
       body.name,
       body.email,
       body.organizationId,
-      body.temporaryPassword,
     );
   }
 

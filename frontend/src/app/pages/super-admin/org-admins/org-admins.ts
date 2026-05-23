@@ -21,28 +21,22 @@ export class OrgAdminsComponent implements OnInit {
   loading = signal(true);
   deleting = signal<string | null>(null);
 
-  // Add admin modal
   showModal = signal(false);
   modalLoading = signal(false);
-  showPassword = signal(false);
 
   form = {
     name: '',
     email: '',
     organizationId: '',
-    temporaryPassword: '',
   };
 
-  // Delete confirmation modal
   showDeleteModal = signal(false);
   adminToDelete = signal<{ id: string; name: string; orgName: string } | null>(null);
 
   ngOnInit() {
     this.loadData();
-    // If arriving from the organizations page shortcut, auto-open modal with org pre-selected
     this.route.queryParams.subscribe(params => {
       if (params['orgId']) {
-        // Wait for organizations to load first
         const check = setInterval(() => {
           if (this.organizations().length > 0) {
             clearInterval(check);
@@ -77,9 +71,7 @@ export class OrgAdminsComponent implements OnInit {
       name: '',
       email: '',
       organizationId: preselectedOrgId ?? '',
-      temporaryPassword: '',
     };
-    this.showPassword.set(false);
     this.showModal.set(true);
   }
 
@@ -88,7 +80,7 @@ export class OrgAdminsComponent implements OnInit {
   }
 
   createAdmin() {
-    if (!this.form.name || !this.form.email || !this.form.organizationId || !this.form.temporaryPassword) {
+    if (!this.form.name || !this.form.email || !this.form.organizationId) {
       this.notificationService.show('Please fill in all fields', 'warning');
       return;
     }
@@ -96,7 +88,7 @@ export class OrgAdminsComponent implements OnInit {
     this.modalLoading.set(true);
     this.superAdminService.createOrgAdmin(this.form).subscribe({
       next: () => {
-        this.notificationService.show('Org admin created and welcome email sent', 'success');
+        this.notificationService.show('Invite sent to org admin successfully', 'success');
         this.closeModal();
         this.loadData();
         this.modalLoading.set(false);
@@ -108,7 +100,6 @@ export class OrgAdminsComponent implements OnInit {
     });
   }
 
-  // Delete confirmation
   confirmDelete(id: string, name: string, orgName: string) {
     this.adminToDelete.set({ id, name, orgName });
     this.showDeleteModal.set(true);

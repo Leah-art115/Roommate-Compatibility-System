@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import {
   Injectable,
   BadRequestException,
@@ -173,7 +174,6 @@ export class SuperAdminService {
         token,
         expiresAt,
         status: 'PENDING',
-        gender: 'other', // default for admins
       },
     });
 

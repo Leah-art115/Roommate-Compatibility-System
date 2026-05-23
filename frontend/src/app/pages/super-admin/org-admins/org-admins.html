@@ -98,9 +98,7 @@
 
 </div>
 
-<!-- ═══════════════════════════════════════════════
-     Add Admin Modal
-════════════════════════════════════════════════ -->
+<!-- Add Admin Modal -->
 @if (showModal()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
     style="background-color: rgba(0,0,0,0.5)"
@@ -115,7 +113,6 @@
         </button>
       </div>
 
-      <!-- autocomplete="off" on the form wrapper kills browser autofill -->
       <div autocomplete="off">
 
         <!-- Name -->
@@ -147,7 +144,7 @@
         </div>
 
         <!-- Organization -->
-        <div class="mb-4">
+        <div class="mb-6">
           <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Organization</label>
           <div class="relative">
             <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
@@ -162,33 +159,8 @@
               }
             </select>
           </div>
-        </div>
-
-        <!-- Temporary Password -->
-        <div class="mb-6">
-          <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">
-            Temporary Password
-          </label>
-          <div class="relative">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-secondary)">
-              <i class="fa-solid fa-lock text-sm"></i>
-            </span>
-            <input
-              [type]="showPassword() ? 'text' : 'password'"
-              [(ngModel)]="form.temporaryPassword"
-              placeholder="Temporary password"
-              autocomplete="new-password"
-              class="w-full pl-9 pr-10 py-3 rounded-xl border text-sm outline-none"
-              style="border-color: var(--color-border); color: var(--color-text-primary)" />
-            <button type="button"
-              (click)="showPassword.set(!showPassword())"
-              class="absolute right-3 top-1/2 -translate-y-1/2"
-              style="color: var(--color-text-secondary)">
-              <i class="fa-solid text-sm" [ngClass]="showPassword() ? 'fa-eye-slash' : 'fa-eye'"></i>
-            </button>
-          </div>
-          <p class="text-xs mt-1" style="color: var(--color-text-secondary)">
-            A welcome email with these credentials will be sent to the admin automatically.
+          <p class="text-xs mt-2" style="color: var(--color-text-secondary)">
+            An invite link will be sent to the admin's email. They will set their own password.
           </p>
         </div>
 
@@ -206,9 +178,9 @@
           @if (modalLoading()) {
             <i class="fa-solid fa-spinner fa-spin"></i>
           } @else {
-            <i class="fa-solid fa-plus"></i>
+            <i class="fa-solid fa-paper-plane"></i>
           }
-          Create Admin
+          Send Invite
         </button>
       </div>
 
@@ -216,9 +188,7 @@
   </div>
 }
 
-<!-- ═══════════════════════════════════════════════
-     Delete Confirmation Modal
-════════════════════════════════════════════════ -->
+<!-- Delete Confirmation Modal -->
 @if (showDeleteModal()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
     style="background-color: rgba(0,0,0,0.5)"
