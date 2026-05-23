@@ -151,9 +151,8 @@ export class SuperAdminService {
       throw new BadRequestException('A user with this email already exists');
     }
 
-    // Check if invite already exists
     const existingInvite = await this.prisma.invite.findFirst({
-      where: { email, organizationId },
+      where: { email },
     });
 
     if (existingInvite) {
@@ -165,11 +164,11 @@ export class SuperAdminService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    // Create invite record for org admin
     await this.prisma.invite.create({
       data: {
         name,
         email,
+        role: 'ORG_ADMIN',
         organizationId,
         token,
         expiresAt,
@@ -177,7 +176,6 @@ export class SuperAdminService {
       },
     });
 
-    // Send invite link email instead of password
     await this.mailService.sendAdminInviteEmail(email, name, org.name, token);
 
     return {

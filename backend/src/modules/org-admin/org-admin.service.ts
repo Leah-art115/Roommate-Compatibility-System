@@ -8,13 +8,19 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import { randomBytes } from 'crypto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class OrgAdminService {
+  private appUrl: string;
+
   constructor(
     private prisma: PrismaService,
     private mailService: MailService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.appUrl = this.configService.getOrThrow<string>('APP_URL');
+  }
 
   // Add a single student
   async addStudent(
@@ -40,11 +46,21 @@ export class OrgAdminService {
       throw new BadRequestException('Student with this email already exists');
     }
 
+    // Also check if a user with this email already exists
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      throw new BadRequestException('A user with this email already exists');
+    }
+
     const invite = await this.prisma.invite.create({
       data: {
         name,
         email,
         gender,
+        role: 'USER',
         organizationId,
         token: `PENDING_${randomBytes(16).toString('hex')}`,
         status: 'PENDING',
@@ -66,7 +82,7 @@ export class OrgAdminService {
   // Get all students — joins the User record (if registered) to get bookingStatus
   async getStudents(user: any, organizationId: string) {
     const invites = await this.prisma.invite.findMany({
-      where: { organizationId },
+      where: { organizationId, role: 'USER' },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -104,7 +120,7 @@ export class OrgAdminService {
     }
 
     const pendingStudents = await this.prisma.invite.findMany({
-      where: { organizationId, status: 'PENDING' },
+      where: { organizationId, status: 'PENDING', role: 'USER' },
     });
 
     if (pendingStudents.length === 0) {
@@ -140,7 +156,7 @@ export class OrgAdminService {
         name: student.name,
         email: student.email,
         token,
-        inviteLink: `http://localhost:4200/register?token=${token}`,
+        inviteLink: `${this.appUrl}/register?token=${token}`,
       });
     }
 
@@ -187,13 +203,12 @@ export class OrgAdminService {
       name: student.name,
       email: student.email,
       token,
-      inviteLink: `http://localhost:4200/register?token=${token}`,
+      inviteLink: `${this.appUrl}/register?token=${token}`,
     };
   }
 
   // Delete a student — removes everything: User record, all related data, and the Invite
   async deleteStudent(user: any, inviteId: string) {
-    // Find the invite first
     const invite = await this.prisma.invite.findUnique({
       where: { id: inviteId },
     });
@@ -202,13 +217,11 @@ export class OrgAdminService {
       throw new NotFoundException('Student not found');
     }
 
-    // Find the registered User by email (may not exist if they never registered)
     const registeredUser = await this.prisma.user.findUnique({
       where: { email: invite.email },
     });
 
     if (registeredUser) {
-      // Delete all child records in correct order (foreign key constraints)
       await this.prisma.answer.deleteMany({
         where: { userId: registeredUser.id },
       });
@@ -225,13 +238,11 @@ export class OrgAdminService {
         where: { userId: registeredUser.id },
       });
 
-      // Delete the User — this invalidates their JWT on next request
       await this.prisma.user.delete({
         where: { id: registeredUser.id },
       });
     }
 
-    // Always delete the invite regardless of whether they registered
     await this.prisma.invite.delete({
       where: { id: inviteId },
     });

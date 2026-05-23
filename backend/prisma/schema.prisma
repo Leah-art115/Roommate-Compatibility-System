@@ -92,6 +92,7 @@ model Invite {
   name           String
   email          String
   gender         String?
+  role           String       @default("USER")
   token          String       @unique
   status         InviteStatus @default(PENDING)
   organizationId String
@@ -99,7 +100,6 @@ model Invite {
   expiresAt      DateTime?
   createdAt      DateTime     @default(now())
 }
-
 model Question {
   id             String       @id @default(uuid())
   text           String
