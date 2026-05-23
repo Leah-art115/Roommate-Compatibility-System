@@ -10,9 +10,13 @@ import { SidebarComponent } from '../../../shared/components/sidebar/sidebar';
   templateUrl: './dashboard.html',
 })
 export class OrgAdminDashboardComponent {
-  collapsed = signal(false);
+  sidebarOpen = signal(false);
 
   toggleSidebar() {
-    this.collapsed.set(!this.collapsed());
+    this.sidebarOpen.update(v => !v);
+  }
+
+  closeSidebar() {
+    this.sidebarOpen.set(false);
   }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrgAdminService } from '../../../shared/services/org-admin.service';
 import { NotificationService } from '../../../shared/components/notification/notification.service';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-rooms',

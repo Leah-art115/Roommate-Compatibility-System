@@ -16,7 +16,7 @@ import { Output, EventEmitter } from '@angular/core';
 export class StudentSidebarComponent implements OnInit {
   @Output() linkClicked = new EventEmitter<void>();
 
-  @Input() collapsed = false;
+  // @Input() collapsed = false;
   private authService = inject(AuthService);
   private studentService = inject(StudentService);
   private router = inject(Router);

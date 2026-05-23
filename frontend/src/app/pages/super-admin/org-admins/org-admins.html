@@ -1,18 +1,16 @@
 <div>
-
-  <div class="flex items-center justify-between mb-6">
+  <div class="flex items-center justify-between mb-5 gap-3">
     <div>
-      <h1 class="text-2xl font-bold" style="color: var(--color-text-primary)">Org Admins</h1>
-      <p class="text-sm mt-1" style="color: var(--color-text-secondary)">
-        Manage organization administrators
-      </p>
+      <h1 class="text-xl font-bold" style="color: var(--color-text-primary)">Org Admins</h1>
+      <p class="text-sm mt-0.5" style="color: var(--color-text-secondary)">Manage organization administrators</p>
     </div>
     <button
       (click)="openModal()"
-      class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white"
+      class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white flex-shrink-0"
       style="background-color: var(--color-neutral-primary)">
       <i class="fa-solid fa-plus"></i>
-      Add Admin
+      <span class="hidden sm:inline">Add Admin</span>
+      <span class="sm:hidden">Add</span>
     </button>
   </div>
 
@@ -21,13 +19,56 @@
       <i class="fa-solid fa-spinner fa-spin text-3xl" style="color: var(--color-neutral-primary)"></i>
     </div>
   } @else if (admins().length === 0) {
-    <div class="bg-white rounded-2xl p-12 text-center border" style="border-color: var(--color-border)">
+    <div class="bg-white rounded-2xl p-10 text-center border" style="border-color: var(--color-border)">
       <i class="fa-solid fa-user-tie text-4xl mb-4" style="color: var(--color-border)"></i>
       <p class="font-medium" style="color: var(--color-text-primary)">No org admins yet</p>
       <p class="text-sm mt-1" style="color: var(--color-text-secondary)">Create an admin for an organization</p>
     </div>
   } @else {
-    <div class="bg-white rounded-2xl border overflow-hidden shadow-sm" style="border-color: var(--color-border)">
+
+    <!-- Mobile: cards -->
+    <div class="flex flex-col gap-3 md:hidden">
+      @for (admin of admins(); track admin.id) {
+        <div class="bg-white rounded-2xl border p-4" style="border-color: var(--color-border)">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+                style="background-color: var(--color-neutral-primary)">
+                {{ admin.name?.charAt(0)?.toUpperCase() }}
+              </div>
+              <div class="min-w-0">
+                <p class="font-medium text-sm truncate" style="color: var(--color-text-primary)">{{ admin.name }}</p>
+                <p class="text-xs truncate" style="color: var(--color-text-secondary)">{{ admin.email }}</p>
+              </div>
+            </div>
+            <button
+              (click)="confirmDelete(admin.id, admin.name, admin.organization?.name || 'Unknown')"
+              [disabled]="deleting() === admin.id"
+              class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-all disabled:opacity-40 flex-shrink-0">
+              @if (deleting() === admin.id) {
+                <i class="fa-solid fa-spinner fa-spin"></i>
+              } @else {
+                <i class="fa-solid fa-trash"></i>
+              }
+            </button>
+          </div>
+          <div class="mt-3 pt-3 border-t flex items-center justify-between" style="border-color: var(--color-border)">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-building text-xs" style="color: var(--color-text-secondary)"></i>
+              <span class="text-xs" style="color: var(--color-text-primary)">
+                {{ admin.organization?.name || 'No organization' }}
+              </span>
+            </div>
+            <span class="text-xs" style="color: var(--color-text-secondary)">
+              {{ admin.createdAt | date:'mediumDate' }}
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Desktop: table -->
+    <div class="hidden md:block bg-white rounded-2xl border overflow-hidden shadow-sm" style="border-color: var(--color-border)">
       <table class="w-full">
         <thead>
           <tr style="border-bottom: 1px solid var(--color-border); background-color: var(--color-background)">
@@ -40,7 +81,6 @@
         <tbody>
           @for (admin of admins(); track admin.id) {
             <tr class="border-b last:border-0 hover:bg-gray-50 transition-colors" style="border-color: var(--color-border)">
-
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                   <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold"
@@ -53,7 +93,6 @@
                   </div>
                 </div>
               </td>
-
               <td class="px-6 py-4">
                 <div class="flex items-center gap-2">
                   <i class="fa-solid fa-building text-xs" style="color: var(--color-text-secondary)"></i>
@@ -67,19 +106,16 @@
                   </span>
                 }
               </td>
-
               <td class="px-6 py-4">
                 <span class="text-sm" style="color: var(--color-text-secondary)">
                   {{ admin.createdAt | date:'mediumDate' }}
                 </span>
               </td>
-
               <td class="px-6 py-4 text-right">
                 <button
                   (click)="confirmDelete(admin.id, admin.name, admin.organization?.name || 'Unknown')"
                   [disabled]="deleting() === admin.id"
-                  class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-all disabled:opacity-40 ml-auto"
-                >
+                  class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-all disabled:opacity-40 ml-auto">
                   @if (deleting() === admin.id) {
                     <i class="fa-solid fa-spinner fa-spin"></i>
                   } @else {
@@ -88,22 +124,20 @@
                   Delete
                 </button>
               </td>
-
             </tr>
           }
         </tbody>
       </table>
     </div>
   }
-
 </div>
 
 <!-- Add Admin Modal -->
 @if (showModal()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
+  <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
     style="background-color: rgba(0,0,0,0.5)"
     (click)="closeModal()">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6"
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl w-full sm:max-w-md p-6"
       (click)="$event.stopPropagation()">
 
       <div class="flex items-center justify-between mb-6">
@@ -114,8 +148,6 @@
       </div>
 
       <div autocomplete="off">
-
-        <!-- Name -->
         <div class="mb-4">
           <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Full Name</label>
           <div class="relative">
@@ -129,7 +161,6 @@
           </div>
         </div>
 
-        <!-- Email -->
         <div class="mb-4">
           <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Email</label>
           <div class="relative">
@@ -143,7 +174,6 @@
           </div>
         </div>
 
-        <!-- Organization -->
         <div class="mb-6">
           <label class="block text-sm font-medium mb-1" style="color: var(--color-text-primary)">Organization</label>
           <div class="relative">
@@ -163,7 +193,6 @@
             An invite link will be sent to the admin's email. They will set their own password.
           </p>
         </div>
-
       </div>
 
       <div class="flex gap-3">
@@ -190,16 +219,14 @@
 
 <!-- Delete Confirmation Modal -->
 @if (showDeleteModal()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
+  <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
     style="background-color: rgba(0,0,0,0.5)"
     (click)="cancelDelete()">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6"
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl w-full sm:max-w-sm p-6"
       (click)="$event.stopPropagation()">
-
       <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
         <i class="fa-solid fa-user-minus text-red-600"></i>
       </div>
-
       <h2 class="text-lg font-bold text-center mb-1" style="color: var(--color-text-primary)">Delete Admin</h2>
       <p class="text-sm text-center mb-6" style="color: var(--color-text-secondary)">
         Are you sure you want to remove
@@ -208,7 +235,6 @@
         <span class="font-semibold" style="color: var(--color-text-primary)">{{ adminToDelete()?.orgName }}</span>?
         They will lose access immediately.
       </p>
-
       <div class="flex gap-3">
         <button (click)="cancelDelete()"
           class="flex-1 py-3 rounded-xl text-sm font-medium border"
@@ -220,7 +246,6 @@
           Delete
         </button>
       </div>
-
     </div>
   </div>
 }

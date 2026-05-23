@@ -2,6 +2,9 @@ import { Component, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { Output, EventEmitter } from '@angular/core';
+
+
 
 @Component({
   selector: 'app-super-admin-sidebar',
@@ -10,7 +13,7 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './super-admin-sidebar.html',
 })
 export class SuperAdminSidebarComponent {
-  @Input() collapsed = false;
+  @Output() linkClicked = new EventEmitter<void>();
   private authService = inject(AuthService);
   private router = inject(Router);
 
@@ -28,8 +31,9 @@ export class SuperAdminSidebarComponent {
   }
 
   navigate(route: string) {
-    this.router.navigate([route]);
-  }
+  this.router.navigate([route]);
+  this.linkClicked.emit();
+}
 
   logout() {
     this.authService.logout();

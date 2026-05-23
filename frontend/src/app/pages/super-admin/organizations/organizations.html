@@ -1,18 +1,16 @@
 <div>
-
-  <div class="flex items-center justify-between mb-6">
+  <div class="flex items-center justify-between mb-5 gap-3">
     <div>
-      <h1 class="text-2xl font-bold" style="color: var(--color-text-primary)">Organizations</h1>
-      <p class="text-sm mt-1" style="color: var(--color-text-secondary)">
-        Manage all organizations on the platform
-      </p>
+      <h1 class="text-xl font-bold" style="color: var(--color-text-primary)">Organizations</h1>
+      <p class="text-sm mt-0.5" style="color: var(--color-text-secondary)">Manage all organizations on the platform</p>
     </div>
     <button
       (click)="openModal()"
-      class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white"
+      class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white flex-shrink-0"
       style="background-color: var(--color-neutral-primary)">
       <i class="fa-solid fa-plus"></i>
-      Add Organization
+      <span class="hidden sm:inline">Add Organization</span>
+      <span class="sm:hidden">Add</span>
     </button>
   </div>
 
@@ -21,37 +19,33 @@
       <i class="fa-solid fa-spinner fa-spin text-3xl" style="color: var(--color-neutral-primary)"></i>
     </div>
   } @else if (organizations().length === 0) {
-    <div class="bg-white rounded-2xl p-12 text-center border" style="border-color: var(--color-border)">
+    <div class="bg-white rounded-2xl p-10 text-center border" style="border-color: var(--color-border)">
       <i class="fa-solid fa-building text-4xl mb-4" style="color: var(--color-border)"></i>
       <p class="font-medium" style="color: var(--color-text-primary)">No organizations yet</p>
       <p class="text-sm mt-1" style="color: var(--color-text-secondary)">Add an organization to get started</p>
     </div>
   } @else {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       @for (org of organizations(); track org.id) {
         <div class="bg-white rounded-2xl border shadow-sm overflow-hidden" style="border-color: var(--color-border)">
 
-          <!-- Header -->
-          <div class="px-5 py-4 border-b flex items-center justify-between" style="border-color: var(--color-border)">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+          <div class="px-4 py-4 border-b flex items-center gap-3" style="border-color: var(--color-border)">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              [style.background-color]="typeColor(org.type)"
+              [style.color]="typeTextColor(org.type)">
+              <i class="fa-solid text-sm" [ngClass]="typeIcon(org.type)"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold text-sm truncate" style="color: var(--color-text-primary)">{{ org.name }}</p>
+              <span class="text-xs px-2 py-0.5 rounded-full font-medium"
                 [style.background-color]="typeColor(org.type)"
                 [style.color]="typeTextColor(org.type)">
-                <i class="fa-solid text-sm" [ngClass]="typeIcon(org.type)"></i>
-              </div>
-              <div>
-                <p class="font-semibold text-sm" style="color: var(--color-text-primary)">{{ org.name }}</p>
-                <span class="text-xs px-2 py-0.5 rounded-full font-medium"
-                  [style.background-color]="typeColor(org.type)"
-                  [style.color]="typeTextColor(org.type)">
-                  {{ typeLabel(org.type) }}
-                </span>
-              </div>
+                {{ typeLabel(org.type) }}
+              </span>
             </div>
           </div>
 
-          <!-- Stats -->
-          <div class="px-5 py-4 grid grid-cols-3 gap-3">
+          <div class="px-4 py-4 grid grid-cols-3 gap-2">
             <div class="text-center">
               <p class="text-lg font-bold" style="color: var(--color-text-primary)">{{ org.totalUsers }}</p>
               <p class="text-xs" style="color: var(--color-text-secondary)">Users</p>
@@ -66,13 +60,11 @@
             </div>
           </div>
 
-          <!-- Admins -->
-          <div class="px-5 pb-3">
+          <div class="px-4 pb-3">
             <div class="flex items-center justify-between mb-2">
               <p class="text-xs font-medium" style="color: var(--color-text-secondary)">
                 Admin(s) — {{ org.admins?.length || 0 }}
               </p>
-              <!-- Add Admin shortcut button -->
               <button
                 (click)="addAdminForOrg(org.id)"
                 class="flex items-center gap-1 text-xs font-medium transition-all"
@@ -84,11 +76,11 @@
             @if (org.admins && org.admins.length > 0) {
               @for (admin of org.admins; track admin.id) {
                 <div class="flex items-center gap-2 mb-1">
-                  <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold"
+                  <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold flex-shrink-0"
                     style="color: var(--color-text-secondary)">
                     {{ admin.name?.charAt(0)?.toUpperCase() }}
                   </div>
-                  <span class="text-xs" style="color: var(--color-text-primary)">{{ admin.name }}</span>
+                  <span class="text-xs truncate" style="color: var(--color-text-primary)">{{ admin.name }}</span>
                 </div>
               }
             } @else {
@@ -96,8 +88,7 @@
             }
           </div>
 
-          <!-- Actions -->
-          <div class="px-5 pb-4 pt-3 flex justify-between items-center border-t" style="border-color: var(--color-border)">
+          <div class="px-4 pb-4 pt-3 flex justify-between items-center border-t" style="border-color: var(--color-border)">
             <p class="text-xs" style="color: var(--color-text-secondary)">
               {{ org.createdAt | date:'mediumDate' }}
             </p>
@@ -105,8 +96,7 @@
               (click)="confirmDelete(org.id, org.name)"
               [disabled]="deleting() === org.id || org.totalUsers > 0"
               class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-all disabled:opacity-40"
-              [title]="org.totalUsers > 0 ? 'Remove all users before deleting' : ''"
-            >
+              [title]="org.totalUsers > 0 ? 'Remove all users before deleting' : ''">
               @if (deleting() === org.id) {
                 <i class="fa-solid fa-spinner fa-spin"></i>
               } @else {
@@ -120,17 +110,14 @@
       }
     </div>
   }
-
 </div>
 
-<!-- ═══════════════════════════════════════════════
-     Add Organization Modal
-════════════════════════════════════════════════ -->
+<!-- Add Organization Modal -->
 @if (showModal()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
+  <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
     style="background-color: rgba(0,0,0,0.5)"
     (click)="closeModal()">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6"
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl w-full sm:max-w-md p-6"
       (click)="$event.stopPropagation()">
 
       <div class="flex items-center justify-between mb-6">
@@ -191,20 +178,16 @@
   </div>
 }
 
-<!-- ═══════════════════════════════════════════════
-     Delete Confirmation Modal
-════════════════════════════════════════════════ -->
+<!-- Delete Confirmation Modal -->
 @if (showDeleteModal()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center px-4"
+  <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
     style="background-color: rgba(0,0,0,0.5)"
     (click)="cancelDelete()">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6"
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl w-full sm:max-w-sm p-6"
       (click)="$event.stopPropagation()">
-
       <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
         <i class="fa-solid fa-building-circle-xmark text-red-600"></i>
       </div>
-
       <h2 class="text-lg font-bold text-center mb-1" style="color: var(--color-text-primary)">Delete Organization</h2>
       <p class="text-sm text-center mb-2" style="color: var(--color-text-secondary)">
         Are you sure you want to delete
@@ -213,7 +196,6 @@
       <p class="text-xs text-center mb-6" style="color: var(--color-error)">
         This will also delete all rooms, questions, and invites linked to this organization. This cannot be undone.
       </p>
-
       <div class="flex gap-3">
         <button (click)="cancelDelete()"
           class="flex-1 py-3 rounded-xl text-sm font-medium border"
@@ -225,7 +207,6 @@
           Delete
         </button>
       </div>
-
     </div>
   </div>
 }

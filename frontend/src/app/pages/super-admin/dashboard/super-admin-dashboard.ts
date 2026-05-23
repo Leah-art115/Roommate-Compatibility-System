@@ -10,9 +10,13 @@ import { SuperAdminSidebarComponent } from '../../../shared/components/super-adm
   templateUrl: './super-admin-dashboard.html',
 })
 export class SuperAdminDashboardComponent {
-  collapsed = signal(false);
+  sidebarOpen = signal(false);
 
   toggleSidebar() {
-    this.collapsed.set(!this.collapsed());
+    this.sidebarOpen.update(v => !v);
+  }
+
+  closeSidebar() {
+    this.sidebarOpen.set(false);
   }
 }

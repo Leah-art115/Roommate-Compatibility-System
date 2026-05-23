@@ -2,6 +2,9 @@ import { Component, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { Output, EventEmitter } from '@angular/core';
+
+
 
 @Component({
   selector: 'app-sidebar',
@@ -10,7 +13,8 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './sidebar.html',
 })
 export class SidebarComponent {
-  @Input() collapsed = false;
+  @Output() linkClicked = new EventEmitter<void>();
+  // @Input() collapsed = false;
   private authService = inject(AuthService);
   private router = inject(Router);
 
@@ -29,6 +33,11 @@ export class SidebarComponent {
   isActive(route: string): boolean {
     return this.router.url === route;
   }
+
+  navigate(route: string) {
+  this.router.navigate([route]);
+  this.linkClicked.emit();
+}
 
   logout() {
     this.authService.logout();
