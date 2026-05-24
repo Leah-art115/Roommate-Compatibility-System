@@ -138,7 +138,7 @@ export class MailService {
 
     try {
       await this.resend.emails.send({
-        from: 'Roommate System <onboarding@resend.dev>',
+        from: 'Roommate System <noreply@leahachieng.com>',
         to,
         subject: `${organizationName} — Your Hostel Booking Invitation`,
         html,
@@ -288,7 +288,7 @@ export class MailService {
 
     try {
       await this.resend.emails.send({
-        from: 'Roommate System <onboarding@resend.dev>',
+        from: 'Roommate System <noreply@leahachieng.com>',
         to,
         subject: `Welcome to ${organizationName} — Your Admin Account is Ready`,
         html,
@@ -364,7 +364,7 @@ export class MailService {
 
     try {
       await this.resend.emails.send({
-        from: 'Roommate System <onboarding@resend.dev>',
+        from: 'Roommate System <noreply@leahachieng.com>',
         to,
         subject: `Set Up Your Admin Account — ${organizationName}`,
         html,
