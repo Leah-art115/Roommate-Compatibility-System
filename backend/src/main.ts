@@ -10,7 +10,8 @@ async function bootstrap() {
   app.enableCors({
   origin: [
     'http://localhost:4200',
-    'https://roommate-compatibility-system.vercel.app'
+    'https://roommate-compatibility-system.vercel.app',
+    'https://roommate-compatibility.leahachieng.com',
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
